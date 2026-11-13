@@ -14,14 +14,14 @@ import os
 import datetime
 
 st.set_page_config(
-    page_title="Enterprise E-Ticaret AI & Regresyon Analitik Platformu",
+    page_title="Olgun Dağdelen | Enterprise E-Ticaret AI Platformu",
     page_icon="💎",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ==============================================================================
-# PREMIUM KURUMSAL UI / CSS TASARIMI (v5.0)
+# PREMIUM KURUMSAL UI / CSS TASARIMI & İLETİŞİM ROZETLERİ
 # ==============================================================================
 st.markdown("""
 <style>
@@ -33,8 +33,29 @@ st.markdown("""
         margin-bottom: 20px;
         box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.35);
     }
-    .hero-title {font-size: 2.1rem; font-weight: 800; color: #FFFFFF; margin: 0 0 6px 0; letter-spacing: -0.5px;}
-    .hero-sub {font-size: 0.98rem; color: #E2E8F0; margin: 0; font-weight: 400;}
+    .hero-title {font-size: 2.05rem; font-weight: 800; color: #FFFFFF; margin: 0 0 6px 0; letter-spacing: -0.5px;}
+    .hero-sub {font-size: 0.96rem; color: #E2E8F0; margin: 0 0 14px 0; font-weight: 400;}
+    .contact-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .contact-pill {
+        background: rgba(255, 255, 255, 0.14);
+        color: #FFFFFF !important;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .contact-pill:hover {
+        background: rgba(255, 255, 255, 0.28);
+    }
     div[data-testid="stMetric"] {
         background-color: #FFFFFF;
         border: 1px solid #E2E8F0;
@@ -51,6 +72,23 @@ st.markdown("""
         border-radius: 10px;
         margin-bottom: 12px;
     }
+    .dev-card {
+        background-color: #F8FAFC;
+        border: 1px solid #CBD5E1;
+        border-left: 4px solid #2563EB;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        margin-bottom: 12px;
+    }
+    .footer-box {
+        background: #0F172A;
+        color: #F8FAFC;
+        padding: 22px;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 25px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -58,6 +96,12 @@ st.markdown("""
 <div class="hero-banner">
     <div class="hero-title">💎 Kurumsal E-Ticaret Veri Mühendisliği, Çapraz Regresyon & AI Karar Destek Platformu (v5.0)</div>
     <div class="hero-sub">Canlı Web Scraping (ETL) | Teknoloji & Cilt Bakımı Regresyon-Korelasyon Modeli | 3D RFM & Radar Segmentasyonu | NLP & Dinamik Fiyat | Otonom Trendyol Botu</div>
+    <div class="contact-bar">
+        <span class="contact-pill">👨‍💻 Lead AI Developer: Olgun Dağdelen</span>
+        <a class="contact-pill" href="mailto:olgundagdelen46@gmail.com">📧 olgundagdelen46@gmail.com</a>
+        <a class="contact-pill" href="tel:+905439322372">📞 +90 543 932 23 72</a>
+        <a class="contact-pill" href="https://wa.me/905439322372" target="_blank">💬 WhatsApp İletişim</a>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -192,14 +236,12 @@ def build_enterprise_customer_mart(df_web, n_customers=750):
     outliers_fixed = int((df_cust["Gunluk_Aktif_Sure_Dk"] > upper_limit).sum())
     df_cust["Gunluk_Aktif_Sure_Dk"] = np.clip(df_cust["Gunluk_Aktif_Sure_Dk"], 1.5, upper_limit)
 
-    # Cilt Bakımı & Kozmetik Harcaması ile Teknoloji Harcaması Arasında Gerçekçi Korelasyon ve Regresyon Yapısı Kurma
     df_cust["Kozmetik_Harcama_TL"] = np.round(
         df_cust["Kozmetik_Siparis_Adedi"] * (koz_fiyat * np.random.uniform(0.65, 1.25, n_customers)) +
         (df_cust["Gunluk_Aktif_Sure_Dk"] * 42.0) +
         (df_cust["Alisveris_Sikligi"] * 55.0) + 250, 2
     )
     
-    # Teknoloji harcaması, Cilt Bakımı harcaması ve Sitede Aktif Süre ile pozitif korelasyonlu (Cross-Category Synergy)
     df_cust["Teknoloji_Harcama_TL"] = np.round(
         (df_cust["Kozmetik_Harcama_TL"] * 1.48) +
         (df_cust["Gunluk_Aktif_Sure_Dk"] * 95.0) +
@@ -244,9 +286,19 @@ def build_enterprise_customer_mart(df_web, n_customers=750):
     return df_web, df_cust, stats
 
 # ==============================================================================
-# YAN MENÜ (SIDEBAR) KONTROL MERKEZİ
+# YAN MENÜ (SIDEBAR) KONTROL MERKEZİ & KİŞİSEL İLETİŞİM KARTI
 # ==============================================================================
 with st.sidebar:
+    st.markdown("""
+    <div class="dev-card">
+        <b>👨‍💻 Baş Geliştirici (Lead AI Eng.)</b><br>
+        <span style="font-size:1.05rem; font-weight:700; color:#1E3A8A;">Olgun Dağdelen</span><br>
+        📧 <a href="mailto:olgundagdelen46@gmail.com">olgundagdelen46@gmail.com</a><br>
+        📞 <a href="tel:+905439322372">+90 543 932 23 72</a><br>
+        💬 <a href="https://wa.me/905439322372" target="_blank">WhatsApp'tan Mesaj Gönder</a>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.header("🎛️ Enterprise Komuta Paneli")
     target_url = st.text_input("🕷️ Canlı Kazınacak Hedef Site URL:", value="https://books.toscrape.com/")
     if st.button("🔄 Siteden Canlı Veri Çek & ETL Çalıştır", use_container_width=True):
@@ -269,8 +321,8 @@ with st.sidebar:
     ]
 
     st.divider()
-    st.markdown("**👨‍💻 Proje Geliştirme Ekibi:**")
-    st.caption("• Olgun Dağdelen (Lead AI & Data Eng.)")
+    st.markdown("**👥 Proje Ekibi & Akademik Künye:**")
+    st.caption("• Olgun Dağdelen (Proje Lideri & AI)")
     st.caption("• Ahmet Emek | İbrahim Taştekin | Emir Kıdrez")
     st.caption("🎓 Danışman: Öğr. Gör. Ümit Bulut")
     
@@ -419,14 +471,11 @@ with tabs[3]:
         fig_imp = px.bar(imp_df, x="Onem_Yuzdesi", y="Ozellik", orientation="h", color="Onem_Yuzdesi", color_continuous_scale="Blues", title="🧠 Yapay Zekanın Harcama Tahmininde En Çok Dikkat Ettiği Faktörler (%)")
         st.plotly_chart(fig_imp, use_container_width=True)
 
-# ==============================================================================
 # SEKME 5: TEKNOLOJİ VE CİLT BAKIMI ARASINDAKİ REGRESYON & KORELASYON ANALİZİ
-# ==============================================================================
 with tabs[4]:
     st.subheader("📈 Teknoloji ile Cilt Bakımı Harcamaları Arasındaki Çapraz Regresyon & Korelasyon Stüdyosu")
     st.markdown("Müşterilerin **Cilt Bakımı & Kozmetik** harcamaları ($X$) ile **Teknoloji** harcamaları ($Y$) arasındaki matematiksel ilişki, **Doğrusal Regresyon ($Y = \\beta_0 + \\beta_1 X$)**, **Polinomiyal Eğilim** ve **Pearson Korelasyon Katsayısı ($r$)** ile modellenmiştir.")
 
-    # Regresyon ve Korelasyon Hesaplamaları
     x_val = df_customers["Kozmetik_Harcama_TL"].values.reshape(-1, 1)
     y_val = df_customers["Teknoloji_Harcama_TL"].values
 
@@ -439,14 +488,12 @@ with tabs[4]:
     pearson_r = float(np.corrcoef(df_customers["Kozmetik_Harcama_TL"], df_customers["Teknoloji_Harcama_TL"])[0, 1])
     r2_val = float(r2_score(y_val, y_pred_lin))
 
-    # 2. Dereceden Polinomiyal Eğri Hesaplama
     x_sorted_idx = np.argsort(df_customers["Kozmetik_Harcama_TL"].values)
     x_sorted = df_customers["Kozmetik_Harcama_TL"].values[x_sorted_idx]
     y_lin_sorted = y_pred_lin[x_sorted_idx]
     poly_coefs = np.polyfit(df_customers["Kozmetik_Harcama_TL"].values, y_val, 2)
     y_poly_sorted = np.polyval(poly_coefs, x_sorted)
 
-    # Üst İstatistiksel Regresyon Kartları
     rc1, rc2, rc3, rc4 = st.columns(4)
     rc1.metric("Pearson Korelasyon (r)", f"{pearson_r:.3f}", delta="Güçlü Pozitif İlişki" if pearson_r > 0.6 else "Pozitif Korelasyon")
     rc2.metric("Belirlilik Katsayısı (R²)", f"%{r2_val*100:.1f}", delta="Açıklayıcılık Oranı")
@@ -496,7 +543,6 @@ with tabs[4]:
         tahmini_tek_tl = multi_reg.predict(pd.DataFrame([[test_koz_tl, test_sure_dk, test_siklik]], columns=["Kozmetik_Harcama_TL", "Gunluk_Aktif_Sure_Dk", "Alisveris_Sikligi"]))[0]
         st.success(f"### 💻 Tahmini Teknoloji Harcaması: **₺{tahmini_tek_tl:,.2f}**")
 
-        # Segment Bazlı Korelasyon Karşılaştırması
         seg_corrs = []
         for s_name, grp in df_customers.groupby("Segment"):
             if len(grp) > 2:
@@ -746,3 +792,19 @@ with ty_right:
         color_discrete_map={"Kozmetik & Cilt Bakımı": "#F27A1A", "Teknoloji & Elektronik": "#1E3A8A"}
     )
     st.plotly_chart(fig_ty_bar, use_container_width=True)
+
+# ==============================================================================
+# KURUMSAL FOOTER & İLETİŞİM KARTI
+# ==============================================================================
+st.markdown("""
+<div class="footer-box">
+    <h4 style="color: #FFFFFF; margin: 0 0 8px 0;">🚀 Enterprise E-Ticaret Veri Mühendisliği & AI Karar Destek Platformu</h4>
+    <p style="margin: 0 0 10px 0; font-size: 0.92rem; color: #CBD5E1;">
+        Geliştirici & Proje Lideri: <b>Olgun Dağdelen</b> | Aydın Adnan Menderes Üniversitesi - Yapay Zeka Operatörlüğü
+    </p>
+    <p style="margin: 0; font-size: 0.9rem;">
+        📧 E-Posta: <a href="mailto:olgundagdelen46@gmail.com" style="color: #60A5FA; text-decoration: none; font-weight: 600;">olgundagdelen46@gmail.com</a> &nbsp;|&nbsp; 
+        📞 Telefon & WhatsApp: <a href="https://wa.me/905439322372" target="_blank" style="color: #34D399; text-decoration: none; font-weight: 600;">+90 543 932 23 72</a>
+    </p>
+</div>
+""", unsafe_allow_html=True)
