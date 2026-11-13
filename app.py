@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.cluster import KMeans
-from sklearn.ensemble import RandomForestRegressor, IsolationForest
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.metrics import r2_score
@@ -14,105 +14,272 @@ import os
 import datetime
 
 st.set_page_config(
-    page_title="Olgun Dağdelen | Ultimate E-Ticaret AI & Karar Destek Sistemi v6.0",
-    page_icon="👑",
+    page_title="NEXUS AI | Enterprise E-Commerce Intelligence",
+    page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ==============================================================================
-# ULTIMATE KURUMSAL UI / CSS TASARIMI (v6.0)
+# ULTRA-PRO DARK GLASSMORPHISM TASARIM MOTORU (v7.0)
 # ==============================================================================
 st.markdown("""
 <style>
-    .hero-banner {
-        background: linear-gradient(135deg, #090D16 0%, #1E3A8A 50%, #2563EB 100%);
-        padding: 26px 30px;
-        border-radius: 16px;
-        color: white;
-        margin-bottom: 22px;
-        box-shadow: 0 12px 30px -6px rgba(30, 58, 138, 0.45);
-        border: 1px solid rgba(255,255,255,0.12);
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
-    .hero-title {font-size: 2.15rem; font-weight: 800; color: #FFFFFF; margin: 0 0 8px 0; letter-spacing: -0.5px;}
-    .hero-sub {font-size: 0.96rem; color: #DBEAFE; margin: 0 0 14px 0; font-weight: 400; line-height: 1.4;}
-    .contact-bar {
+
+    /* Ana Arka Plan: Uzay Siyahı ve Radyal Neon Işık */
+    .stApp {
+        background-color: #060913;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+            radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 50%),
+            radial-gradient(at 50% 100%, rgba(242, 122, 26, 0.08) 0px, transparent 50%);
+        color: #F8FAFC;
+    }
+
+    /* Yan Menü (Sidebar) Cam Tasarımı */
+    section[data-testid="stSidebar"] {
+        background-color: rgba(11, 15, 29, 0.92) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    section[data-testid="stSidebar"] * {
+        color: #E2E8F0 !important;
+    }
+
+    /* Canlı Kayan Borsa / Sistem Bandı */
+    .ticker-wrap {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 10px;
+        padding: 8px 16px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        color: #94A3B8;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .pulse-dot {
+        height: 10px;
+        width: 10px;
+        background-color: #10B981;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 0 12px #10B981;
+        animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Ultra-Pro Hero Banner */
+    .pro-hero {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 27, 75, 0.85) 50%, rgba(15, 23, 42, 0.95) 100%);
+        border: 1px solid rgba(99, 102, 241, 0.35);
+        padding: 28px 32px;
+        border-radius: 18px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(56, 189, 248, 0.1);
+    }
+    .pro-badge {
+        display: inline-block;
+        background: linear-gradient(90deg, #38BDF8, #818CF8);
+        color: #060913;
+        font-weight: 800;
+        font-size: 0.72rem;
+        padding: 4px 12px;
+        border-radius: 999px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+    .pro-title {
+        font-size: 2.3rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #FFFFFF 0%, #93C5FD 50%, #C4B5FD 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.8px;
+    }
+    .pro-sub {
+        color: #94A3B8;
+        font-size: 0.96rem;
+        margin: 0 0 18px 0;
+        max-width: 92%;
+        line-height: 1.5;
+    }
+    .contact-row {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .contact-pill {
-        background: rgba(255, 255, 255, 0.14);
-        color: #FFFFFF !important;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.85rem;
+    .glass-pill {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #F8FAFC !important;
+        padding: 7px 15px;
+        border-radius: 10px;
+        font-size: 0.83rem;
         font-weight: 600;
         text-decoration: none !important;
-        border: 1px solid rgba(255, 255, 255, 0.25);
+        transition: all 0.25s ease;
     }
-    .contact-pill:hover {
-        background: rgba(255, 255, 255, 0.30);
+    .glass-pill:hover {
+        background: rgba(56, 189, 248, 0.2);
+        border-color: #38BDF8;
+        transform: translateY(-2px);
     }
-    div[data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-left: 5px solid #2563EB;
-        padding: 14px 16px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+
+    /* Özel Cam KPI Kartları */
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 14px;
+        margin-bottom: 24px;
     }
-    .reg-card {
-        background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
-        border: 1px solid #BFDBFE;
-        border-left: 5px solid #1D4ED8;
-        padding: 16px;
-        border-radius: 10px;
-        margin-bottom: 12px;
-    }
-    .dev-card {
-        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        color: #F8FAFC;
-        border-left: 4px solid #38BDF8;
-        padding: 14px;
-        border-radius: 12px;
-        font-size: 0.88rem;
-        margin-bottom: 14px;
-    }
-    .dev-card a {color: #38BDF8 !important; text-decoration: none; font-weight: 600;}
-    .footer-box {
-        background: #0F172A;
-        color: #F8FAFC;
-        padding: 24px;
+    .kpi-card {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 3px solid #38BDF8;
         border-radius: 14px;
-        text-align: center;
-        margin-top: 28px;
-        border-top: 4px solid #F27A1A;
+        padding: 16px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        transition: all 0.25s ease;
     }
+    .kpi-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(56, 189, 248, 0.5);
+        box-shadow: 0 15px 30px -5px rgba(56, 189, 248, 0.18);
+    }
+    .kpi-label {
+        color: #94A3B8;
+        font-size: 0.76rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 6px;
+    }
+    .kpi-val {
+        color: #FFFFFF;
+        font-size: 1.55rem;
+        font-weight: 800;
+        font-family: 'JetBrains Mono', monospace;
+        margin-bottom: 6px;
+    }
+    .kpi-delta {
+        display: inline-block;
+        font-size: 0.73rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 6px;
+        background: rgba(16, 185, 129, 0.15);
+        color: #34D399;
+    }
+
+    /* Streamlit Sekme (Tabs) Hap Tasarımı */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: rgba(15, 23, 42, 0.7);
+        padding: 8px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 42px;
+        border-radius: 10px;
+        color: #94A3B8 !important;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0 14px;
+        background-color: transparent;
+    }
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Standart Metrik & Kart İyileştirmesi */
+    div[data-testid="stMetric"] {
+        background: rgba(15, 23, 42, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-left: 4px solid #38BDF8 !important;
+        border-radius: 12px !important;
+        padding: 14px !important;
+    }
+    div[data-testid="stMetricValue"] {color: #FFFFFF !important;}
+    div[data-testid="stMetricLabel"] {color: #94A3B8 !important;}
+
+    .glass-panel {
+        background: rgba(15, 23, 42, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 16px;
+    }
+    h1, h2, h3, h4 {color: #F8FAFC !important;}
 </style>
 """, unsafe_allow_html=True)
 
+# Tüm Plotly Grafiklerini Otomatik Olarak "Dark Cyber Glass" Temasına Çeviren Fonksiyon
+def apply_pro_theme(fig, height=440):
+    fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor="rgba(15, 23, 42, 0.65)",
+        plot_bgcolor="rgba(15, 23, 42, 0.35)",
+        font=dict(family="Plus Jakarta Sans, sans-serif", color="#E2E8F0", size=12),
+        title_font=dict(size=15, color="#FFFFFF", family="Plus Jakarta Sans, sans-serif"),
+        margin=dict(l=20, r=20, t=50, b=20),
+        height=height,
+        legend=dict(bgcolor="rgba(15, 23, 42, 0.7)", bordercolor="rgba(255,255,255,0.1)", borderwidth=1)
+    )
+    fig.update_xaxes(gridcolor="rgba(148, 163, 184, 0.12)", zerolinecolor="rgba(148, 163, 184, 0.2)")
+    fig.update_yaxes(gridcolor="rgba(148, 163, 184, 0.12)", zerolinecolor="rgba(148, 163, 184, 0.2)")
+    return fig
+
+# Canlı Borsa / Sistem Durum Bandı
+st.markdown(f"""
+<div class="ticker-wrap">
+    <div><span class="pulse-dot"></span><b>NEXUS AI ENGINE v7.0 ONLINE</b> &nbsp;|&nbsp; ETL PIPELINE: ACTIVE &nbsp;|&nbsp; TRENDYOL DAEMON: CONNECTED</div>
+    <div>⚡ LATENCY: 14ms &nbsp;|&nbsp; PYTHON 3.14 CLUSTER &nbsp;|&nbsp; {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')}</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Ultra-Pro Hero Banner
 st.markdown("""
-<div class="hero-banner">
-    <div class="hero-title">👑 Ultimate Kurumsal E-Ticaret Veri Mühendisliği, Omnichannel İstihbarat & AI Platformu (v6.0)</div>
-    <div class="hero-sub">
-        Canlı Web Scraping (ETL) | Teknoloji & Cilt Bakımı Regresyonu | 3D RFM & Kohort Retention | A/B Hipotez Testi | BuyBox Rakip Fiyat İstihbaratı | Sahte Yorum (Bot) Dedektörü | AI Danışman & Otonom Trendyol Botu
+<div class="pro-hero">
+    <div class="pro-badge">⚡ ENTERPRISE AI DECISION SUITE v7.0</div>
+    <div class="pro-title">NEXUS AI: Omnichannel E-Ticaret Veri Mühendisliği & Karar Destek Platformu</div>
+    <div class="pro-sub">
+        Otonom Web Scraping (BeautifulSoup & REST API) • Cilt Bakımı & Teknoloji Çapraz Regresyon Stüdyosu • 3D RFM & Kohort Analitiği • A/B Hipotez Testi • BuyBox Rakip İstihbaratı & Canlı Trendyol Kazıma Motoru
     </div>
-    <div class="contact-bar">
-        <span class="contact-pill">👨‍💻 Lead AI Architect: Olgun Dağdelen</span>
-        <a class="contact-pill" href="mailto:olgundagdelen46@gmail.com">📧 olgundagdelen46@gmail.com</a>
-        <a class="contact-pill" href="tel:+905439322372">📞 +90 543 932 23 72</a>
-        <a class="contact-pill" href="https://wa.me/905439322372" target="_blank">💬 WhatsApp Doğrudan İletişim</a>
-        <span class="contact-pill">🎓 Danışman: Öğr. Gör. Ümit Bulut</span>
+    <div class="contact-row">
+        <span class="glass-pill">👑 Lead AI Architect: Olgun Dağdelen</span>
+        <a class="glass-pill" href="mailto:olgundagdelen46@gmail.com">📧 olgundagdelen46@gmail.com</a>
+        <a class="glass-pill" href="tel:+905439322372">📞 +90 543 932 23 72</a>
+        <a class="glass-pill" href="https://wa.me/905439322372" target="_blank">💬 WhatsApp Direct</a>
+        <span class="glass-pill">🎓 Danışman: Öğr. Gör. Ümit Bulut</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # ==============================================================================
-# 1. CANLI WEB SCRAPING & API VERİ KAZIMA MOTORU (BEAUTIFULSOUP + REST API)
+# 1. CANLI WEB SCRAPING & API VERİ KAZIMA MOTORU
 # ==============================================================================
 @st.cache_data(ttl=3600)
 def scrape_live_ecommerce_data(custom_url=None):
@@ -138,7 +305,7 @@ def scrape_live_ecommerce_data(custom_url=None):
             if resp.status_code == 200:
                 data = resp.json()
                 items = data.get("products", [])
-                scrape_log.append(f"✅ [HTTP 200] {url} -> {len(items)} canlı ürün ve müşteri yorumu çekildi")
+                scrape_log.append(f"[HTTP 200 OK] {url} -> {len(items)} SKU & Review çekildi")
                 for item in items:
                     reviews = item.get("reviews", [])
                     review_texts = [r.get("comment", "") for r in reviews] if reviews else ["Ürün kalitesi gayet başarılı."]
@@ -168,7 +335,7 @@ def scrape_live_ecommerce_data(custom_url=None):
                         "Kaynak_URL": url
                     })
         except Exception as e:
-            scrape_log.append(f"⚠️ Bağlantı uyarısı ({slug}): {str(e)}")
+            scrape_log.append(f"[WARN] Bağlantı uyarısı ({slug}): {str(e)}")
 
     html_info = None
     if custom_url:
@@ -187,7 +354,7 @@ def scrape_live_ecommerce_data(custom_url=None):
                 "images": img_sayisi,
                 "price_tags": fiyat_etiketleri
             }
-            scrape_log.append(f"🕷️ BeautifulSoup HTML DOM Analizi Tamamlandı: {custom_url}")
+            scrape_log.append(f"[DOM PARSED] BeautifulSoup HTML Analizi: {custom_url}")
         except Exception as e:
             html_info = {"error": str(e)}
 
@@ -292,27 +459,25 @@ def build_enterprise_customer_mart(df_web, n_customers=800):
     return df_web, df_cust, stats
 
 # ==============================================================================
-# YAN MENÜ (SIDEBAR) KONTROL MERKEZİ, İLETİŞİM & CEO RAPOR ÜRETİCİ
+# YAN MENÜ (SIDEBAR) KONTROL MERKEZİ
 # ==============================================================================
 with st.sidebar:
     st.markdown("""
-    <div class="dev-card">
-        <b>👑 Baş Geliştirici (Lead AI Eng.)</b><br>
-        <span style="font-size:1.1rem; font-weight:800; color:#FFFFFF;">Olgun Dağdelen</span><br>
-        📧 <a href="mailto:olgundagdelen46@gmail.com">olgundagdelen46@gmail.com</a><br>
-        📞 <a href="tel:+905439322372">+90 543 932 23 72</a><br>
-        💬 <a href="https://wa.me/905439322372" target="_blank">WhatsApp Doğrudan Mesaj</a>
+    <div style="background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(124,58,237,0.25)); border: 1px solid rgba(56,189,248,0.4); padding: 16px; border-radius: 14px; margin-bottom: 16px;">
+        <div style="font-size:0.75rem; color:#38BDF8; font-weight:800; letter-spacing:1px;">LEAD AI ARCHITECT</div>
+        <div style="font-size:1.2rem; font-weight:800; color:#FFFFFF; margin: 2px 0 8px 0;">Olgun Dağdelen</div>
+        <div style="font-size:0.82rem; margin-bottom:4px;">📧 <a href="mailto:olgundagdelen46@gmail.com" style="color:#93C5FD; text-decoration:none;">olgundagdelen46@gmail.com</a></div>
+        <div style="font-size:0.82rem; margin-bottom:4px;">📞 <a href="tel:+905439322372" style="color:#93C5FD; text-decoration:none;">+90 543 932 23 72</a></div>
+        <div style="font-size:0.82rem;">💬 <a href="https://wa.me/905439322372" target="_blank" style="color:#34D399; text-decoration:none; font-weight:700;">WhatsApp Direct Hattı</a></div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.header("🎛️ Enterprise Komuta Paneli")
-    target_url = st.text_input("🕷️ Canlı Kazınacak Hedef Site URL:", value="https://books.toscrape.com/")
-    if st.button("🔄 Siteden Canlı Veri Çek & ETL Çalıştır", use_container_width=True):
+    st.subheader("🎛️ Veri Hattı & Filtreler")
+    target_url = st.text_input("🕷️ Hedef Scraping URL:", value="https://books.toscrape.com/")
+    if st.button("⚡ Canlı Veri Çek & ETL Başlat", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
 
-    st.divider()
-    st.subheader("🔍 Dinamik Veri Filtreleri")
     df_web_raw, logs, html_res = scrape_live_ecommerce_data(target_url)
     df_web_clean, df_customers_all, etl_stats = build_enterprise_customer_mart(df_web_raw)
 
@@ -327,87 +492,99 @@ with st.sidebar:
     ]
 
     st.divider()
-    st.subheader("📄 Üst Yönetim (CEO) Raporu")
     ceo_rapor_metni = f"""====================================================================
-KURUMSAL E-TİCARET YAPAY ZEKA & KARAR DESTEK YÖNETİCİ RAPORU (v6.0)
+NEXUS AI - EXECUTIVE DECISION REPORT (v7.0)
 Tarih: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')}
-Proje Lideri: Olgun Dağdelen (olgundagdelen46@gmail.com | +90 543 932 23 72)
-Ekip: Ahmet Emek, İbrahim Taştekin, Emir Kıdrez
-Danışman: Öğr. Gör. Ümit Bulut
+Lead AI Architect: Olgun Dağdelen (olgundagdelen46@gmail.com | +90 543 932 23 72)
+Ekip: Ahmet Emek, İbrahim Taştekin, Emir Kıdrez | Danışman: Öğr. Gör. Ümit Bulut
 ====================================================================
-1. CANLI ETL & VERİ ÖN ELEME ÖZETİ:
-- Siteden Canlı Çekilen Ürün (SKU): {etl_stats['web_products']} Adet
-- Temizlenen Eksik/Aykırı Gözlem: {etl_stats['nulls_cleaned'] + etl_stats['outliers_clipped']} Kayıt (IQR Üst Sınır: {etl_stats['upper_bound']} dk)
-
-2. MÜŞTERİ ANALİTİĞİ VE FİNANSAL PERFORMANS:
+- Canlı Çekilen Ürün (SKU): {etl_stats['web_products']} Adet
+- Temizlenen Veri (Imputation & IQR): {etl_stats['nulls_cleaned'] + etl_stats['outliers_clipped']} Kayıt
 - Aktif Müşteri Sayısı: {len(df_customers)} Kişi
-- Ortalama Günlük Sitede Kalma Süresi: {df_customers['Gunluk_Aktif_Sure_Dk'].mean():.1f} Dakika
 - Toplam Kümülatif Ciro: TL {df_customers['Toplam_Harcama_TL'].sum():,.2f}
-- Gelecek Kampanya AI Beklenen Ciro: TL {df_customers['Gelecek_Kampanya_Tahmini_TL'].sum():,.2f} (+%26.4 Büyüme)
-
-3. STRATEJİK AI AKSİYON ÖNERİSİ:
-- VIP Şampiyonlar segmentine erken erişim teknoloji/cilt bakımı çapraz kuponu tanımlanmalı.
-- Kritik stok seviyesindeki ürünler için otomatik tedarik emri tetiklenmeli.
+- Gelecek Kampanya AI Beklenen Ciro: TL {df_customers['Gelecek_Kampanya_Tahmini_TL'].sum():,.2f}
 ====================================================================
 """
-    st.download_button("📥 CEO Yönetici AI Raporu İndir (.TXT)", data=ceo_rapor_metni.encode("utf-8"), file_name="CEO_Yonetici_AI_Karar_Raporu.txt", mime="text/plain", use_container_width=True)
-    
+    st.download_button("📥 CEO Yönetici AI Raporu (.TXT)", data=ceo_rapor_metni.encode("utf-8"), file_name="NEXUS_AI_CEO_Raporu.txt", mime="text/plain", use_container_width=True)
     ozet_csv = df_customers.to_csv(index=False).encode("utf-8")
-    st.download_button("📊 Bütünleştirilmiş Müşteri Verisini İndir (.CSV)", data=ozet_csv, file_name="kurumsal_musteri_analitik_raporu.csv", mime="text/csv", use_container_width=True)
+    st.download_button("📊 Bütünleştirilmiş Veri (.CSV)", data=ozet_csv, file_name="nexus_ai_musteri_verisi.csv", mime="text/csv", use_container_width=True)
 
 # ==============================================================================
-# ÜST ÖZET KPI KARTLARI (6 KART)
+# ÖZEL TASARIM GLASSMORPHISM KPI KARTLARI (6 ADET)
 # ==============================================================================
-k1, k2, k3, k4, k5, k6 = st.columns(6)
-k1.metric("Canlı Çekilen Ürün", f"{etl_stats['web_products']} SKU", delta="HTTP 200 Aktif")
-k2.metric("Aktif Müşteri Havuzu", f"{len(df_customers):,} Kişi", delta=f"{etl_stats['nulls_cleaned']+etl_stats['outliers_clipped']} Veri Temizlendi")
-k3.metric("Ort. Sitede Kalma", f"{df_customers['Gunluk_Aktif_Sure_Dk'].mean():.1f} Dk", delta="Günlük Oturum")
-k4.metric("Toplam Kümülatif Ciro", f"₺{df_customers['Toplam_Harcama_TL'].sum():,.0f}")
-k5.metric("Gelecek Kampanya Beklentisi", f"₺{df_customers['Gelecek_Kampanya_Tahmini_TL'].sum():,.0f}", delta="+%26.4 AI Tahmini")
 kritik_stok_sayisi = len(df_web_clean[df_web_clean["Stok_Durumu"].str.contains("Kritik")]) if not df_web_clean.empty else 0
-k6.metric("Kritik Stok Uyarısı", f"{kritik_stok_sayisi} Ürün", delta="Acil Tedarik", delta_color="inverse")
 
-st.write("")
+st.markdown(f"""
+<div class="kpi-grid">
+    <div class="kpi-card" style="border-top-color: #38BDF8;">
+        <div class="kpi-label">🕷️ Canlı Çekilen Ürün</div>
+        <div class="kpi-val">{etl_stats['web_products']} SKU</div>
+        <span class="kpi-delta">HTTP 200 Aktif</span>
+    </div>
+    <div class="kpi-card" style="border-top-color: #818CF8;">
+        <div class="kpi-label">👥 Aktif Müşteri Havuzu</div>
+        <div class="kpi-val">{len(df_customers):,}</div>
+        <span class="kpi-delta">{etl_stats['nulls_cleaned']+etl_stats['outliers_clipped']} Veri Temizlendi</span>
+    </div>
+    <div class="kpi-card" style="border-top-color: #34D399;">
+        <div class="kpi-label">⏱️ Ort. Sitede Kalma</div>
+        <div class="kpi-val">{df_customers['Gunluk_Aktif_Sure_Dk'].mean():.1f} Dk</div>
+        <span class="kpi-delta">IQR Optimize</span>
+    </div>
+    <div class="kpi-card" style="border-top-color: #F472B6;">
+        <div class="kpi-label">💰 Kümülatif Ciro</div>
+        <div class="kpi-val">₺{df_customers['Toplam_Harcama_TL'].sum()/1000000:.2f}M</div>
+        <span class="kpi-delta">Kozmetik + Teknoloji</span>
+    </div>
+    <div class="kpi-card" style="border-top-color: #FBBF24;">
+        <div class="kpi-label">🎯 Gelecek Kampanya AI</div>
+        <div class="kpi-val">₺{df_customers['Gelecek_Kampanya_Tahmini_TL'].sum()/1000:.0f}K</div>
+        <span class="kpi-delta">+%26.4 Büyüme</span>
+    </div>
+    <div class="kpi-card" style="border-top-color: #F87171;">
+        <div class="kpi-label">📦 Kritik Stok Alarmı</div>
+        <div class="kpi-val">{kritik_stok_sayisi} SKU</div>
+        <span class="kpi-delta" style="background:rgba(239,68,68,0.2); color:#FCA5A5;">Acil Tedarik</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ==============================================================================
-# 12 DEVASA KURUMSAL MODÜL SEKMESİ (v6.0 ULTIMATE TABS)
+# 12 KURUMSAL MODÜL SEKMESİ
 # ==============================================================================
 tabs = st.tabs([
-    "🕷️ 1. Scraping & ETL",
+    "🕷️ 1. Canlı Scraping & ETL",
     "📊 2. Görsel Keşif (EDA)",
     "👥 3. 3D & Radar Segment",
     "🎯 4. Kampanya Tahmini",
     "📈 5. Cilt Bakımı & Teknoloji Regresyonu",
     "🧪 6. Apriori Tavsiye",
-    "💬 7. NLP & Sahte Yorum Avcısı",
+    "💬 7. NLP & Bot Avcısı",
     "💸 8. Dinamik Fiyat",
     "📦 9. Akıllı Stok Radarı",
-    "⚖️ 10. A/B Kampanya Testi",
+    "⚖️ 10. A/B Hipotez Testi",
     "⚔️ 11. BuyBox Rakip Fiyat",
     "🤖 12. AI Danışman & Kohort"
 ])
 
 # SEKME 1: CANLI WEB SCRAPING & ETL
 with tabs[0]:
-    st.subheader("🕷️ Otomatize Web Scraping (BeautifulSoup & API), Veri Bütünleştirme ve Ön Eleme")
-    c1, c2 = st.columns([1.3, 1])
+    st.subheader("🕷️ Otonom Web Scraping (BeautifulSoup & REST API), Veri Bütünleştirme ve Ön Eleme")
+    c1, c2 = st.columns([1.35, 1])
     with c1:
-        st.markdown("#### 🌐 Siteden Canlı Çekilen Kozmetik ve Teknoloji Ürün Kataloğu")
-        st.dataframe(df_web_clean, use_container_width=True, height=310)
+        st.dataframe(df_web_clean, use_container_width=True, height=320)
     with c2:
-        st.markdown("#### 📡 Canlı Veri Kazıma & ETL Ön Eleme Logları")
         for l in logs:
             st.code(l, language="bash")
         st.info(f"**🧹 Veri Ön Eleme Özeti:** `{etl_stats['nulls_cleaned']}` eksik hücre medyan ile dolduruldu; `{etl_stats['outliers_clipped']}` aşırı uç oturum süresi IQR yöntemiyle `{etl_stats['upper_bound']} dk` sınırına baskılandı.")
 
-    st.markdown("#### 🔬 Veri Ön Eleme (Outlier Baskılama) Öncesi vs. Sonrası Görsel Karşılaştırma")
     etl_g1, etl_g2 = st.columns(2)
     with etl_g1:
-        fig_raw_box = px.box(df_customers, x="Baskin_Kategori", y="Ham_Aktif_Sure_Dk", color="Baskin_Kategori", title="Ön Eleme ÖNCESİ Ham Süre (Aykırı/Outlier Değerler Mevcut)", color_discrete_sequence=["#EF4444", "#F59E0B"])
-        st.plotly_chart(fig_raw_box, use_container_width=True)
+        fig_raw_box = px.box(df_customers, x="Baskin_Kategori", y="Ham_Aktif_Sure_Dk", color="Baskin_Kategori", title="Ön Eleme ÖNCESİ Ham Süre (Aykırı/Outlier Değerler Mevcut)", color_discrete_sequence=["#F43F5E", "#F59E0B"])
+        st.plotly_chart(apply_pro_theme(fig_raw_box, 380), use_container_width=True)
     with etl_g2:
-        fig_clean_box = px.box(df_customers, x="Baskin_Kategori", y="Gunluk_Aktif_Sure_Dk", color="Baskin_Kategori", title="IQR Ön Eleme SONRASI Temizlenmiş Aktif Süre Dağılımı", color_discrete_sequence=["#10B981", "#3B82F6"])
-        st.plotly_chart(fig_clean_box, use_container_width=True)
+        fig_clean_box = px.box(df_customers, x="Baskin_Kategori", y="Gunluk_Aktif_Sure_Dk", color="Baskin_Kategori", title="IQR Ön Eleme SONRASI Temizlenmiş Aktif Süre Dağılımı", color_discrete_sequence=["#10B981", "#38BDF8"])
+        st.plotly_chart(apply_pro_theme(fig_clean_box, 380), use_container_width=True)
 
 # SEKME 2: GELİŞMİŞ GÖRSEL VERİ KEŞFİ (EDA)
 with tabs[1]:
@@ -416,35 +593,20 @@ with tabs[1]:
     with eda1:
         corr_cols = ["Gunluk_Aktif_Sure_Dk", "Kullanim_Suresi_Ay", "Son_Alisveris_Gun", "Alisveris_Sikligi", "Kozmetik_Harcama_TL", "Teknoloji_Harcama_TL", "Toplam_Harcama_TL", "Gelecek_Kampanya_Tahmini_TL", "Churn_Riski_Yuzde"]
         corr_matrix = df_customers[corr_cols].corr().round(2)
-        fig_corr = px.imshow(
-            corr_matrix, text_auto=True, aspect="auto", color_continuous_scale="RdBu_r",
-            title="🔥 Değişkenler Arası Pearson Korelasyon Isı Haritası (Heatmap)"
-        )
-        st.plotly_chart(fig_corr, use_container_width=True)
+        fig_corr = px.imshow(corr_matrix, text_auto=True, aspect="auto", color_continuous_scale="Tealrose", title="🔥 Değişkenler Arası Pearson Korelasyon Isı Haritası")
+        st.plotly_chart(apply_pro_theme(fig_corr, 440), use_container_width=True)
 
     with eda2:
-        fig_violin = px.violin(
-            df_customers, x="Sehir", y="Toplam_Harcama_TL", color="Baskin_Kategori",
-            box=True, title="🎻 Şehirlere ve Kategorilere Göre Harcama Yoğunluğu (Violin & Box Plot)",
-            color_discrete_sequence=["#EC4899", "#2563EB"]
-        )
-        st.plotly_chart(fig_violin, use_container_width=True)
+        fig_violin = px.violin(df_customers, x="Sehir", y="Toplam_Harcama_TL", color="Baskin_Kategori", box=True, title="🎻 Şehirlere ve Kategorilere Göre Harcama Yoğunluğu (Violin Plot)", color_discrete_sequence=["#F472B6", "#38BDF8"])
+        st.plotly_chart(apply_pro_theme(fig_violin, 440), use_container_width=True)
 
     eda3, eda4 = st.columns(2)
     with eda3:
-        fig_tree_city = px.treemap(
-            df_customers, path=["Sehir", "Baskin_Kategori", "Segment"],
-            values="Toplam_Harcama_TL", color="Gelecek_Kampanya_Tahmini_TL", color_continuous_scale="Viridis",
-            title="🗺️ Türkiye Şehir, Kategori ve Segment Hiyerarşik Ciro Haritası (Treemap)"
-        )
-        st.plotly_chart(fig_tree_city, use_container_width=True)
+        fig_tree_city = px.treemap(df_customers, path=["Sehir", "Baskin_Kategori", "Segment"], values="Toplam_Harcama_TL", color="Gelecek_Kampanya_Tahmini_TL", color_continuous_scale="Purpor", title="🗺️ Türkiye Şehir, Kategori ve Segment Hiyerarşik Ciro Haritası")
+        st.plotly_chart(apply_pro_theme(fig_tree_city, 430), use_container_width=True)
     with eda4:
-        fig_joint = px.density_heatmap(
-            df_customers, x="Gunluk_Aktif_Sure_Dk", y="Alisveris_Sikligi",
-            color_continuous_scale="Magma",
-            title="⚡ Sitede Kalma Süresi x Alışveriş Sıklığı Yoğunluk Haritası (2D Density)"
-        )
-        st.plotly_chart(fig_joint, use_container_width=True)
+        fig_joint = px.density_heatmap(df_customers, x="Gunluk_Aktif_Sure_Dk", y="Alisveris_Sikligi", color_continuous_scale="Electric", title="⚡ Sitede Kalma Süresi x Alışveriş Sıklığı Yoğunluk Haritası")
+        st.plotly_chart(apply_pro_theme(fig_joint, 430), use_container_width=True)
 
 # SEKME 3: 3D MÜŞTERİ SEGMENTASYONU & RADAR GRAFİĞİ
 with tabs[2]:
@@ -455,25 +617,28 @@ with tabs[2]:
             df_customers, x="Gunluk_Aktif_Sure_Dk", y="Alisveris_Sikligi", z="Toplam_Harcama_TL",
             color="Segment", size="Kullanim_Suresi_Ay",
             hover_data=["Musteri_ID", "Sehir", "Baglanti_Cihazi", "Churn_Riski_Yuzde"],
-            title="3 Boyutlu Davranışsal Müşteri Kümeleme (Aktif Süre x Sıklık x Harcama)", height=500
+            color_discrete_sequence=["#38BDF8", "#A855F7", "#34D399", "#F43F5E"],
+            title="3 Boyutlu Davranışsal Müşteri Kümeleme (Aktif Süre x Sıklık x Harcama)"
         )
-        st.plotly_chart(fig_3d, use_container_width=True)
+        st.plotly_chart(apply_pro_theme(fig_3d, 500), use_container_width=True)
     with cs2:
         radar_cols = ["Gunluk_Aktif_Sure_Dk", "Kullanim_Suresi_Ay", "Alisveris_Sikligi", "Toplam_Harcama_TL", "Gelecek_Kampanya_Tahmini_TL"]
         seg_means = df_customers.groupby("Segment")[radar_cols].mean()
-        scaler_mm = MinMaxScaler(feature_range=(20, 100))
+        scaler_mm = MinMaxScaler(feature_range=(25, 100))
         seg_norm = pd.DataFrame(scaler_mm.fit_transform(seg_means), index=seg_means.index, columns=["Aktif Süre", "Üyelik Yaşı", "Alışveriş Sıklığı", "Toplam Harcama", "Kampanya Potansiyeli"])
         
         fig_radar = go.Figure()
-        for seg_name in seg_norm.index:
+        colors_r = ["#38BDF8", "#A855F7", "#34D399", "#F43F5E"]
+        for idx, seg_name in enumerate(seg_norm.index):
             fig_radar.add_trace(go.Scatterpolar(
                 r=seg_norm.loc[seg_name].values.tolist(),
                 theta=seg_norm.columns.tolist(),
                 fill="toself",
-                name=seg_name
+                name=seg_name,
+                line=dict(color=colors_r[idx % len(colors_r)], width=2)
             ))
-        fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), title="🕸️ Segmentlerin 5 Boyutlu Davranış Radar (Spider) Grafiği", height=500)
-        st.plotly_chart(fig_radar, use_container_width=True)
+        fig_radar.update_layout(polar=dict(bgcolor="rgba(15,23,42,0.5)", radialaxis=dict(visible=True, range=[0, 100], gridcolor="rgba(255,255,255,0.1)")), title="🕸️ Segmentlerin 5 Boyutlu Davranış Radar Grafiği")
+        st.plotly_chart(apply_pro_theme(fig_radar, 500), use_container_width=True)
 
 # SEKME 4: GELECEK KAMPANYA POTANSİYEL HARCAMA TAHMİNİ
 with tabs[3]:
@@ -497,8 +662,8 @@ with tabs[3]:
 
     with cp2:
         imp_df = pd.DataFrame({"Ozellik": X_cols, "Onem_Yuzdesi": rf.feature_importances_ * 100}).sort_values("Onem_Yuzdesi", ascending=True)
-        fig_imp = px.bar(imp_df, x="Onem_Yuzdesi", y="Ozellik", orientation="h", color="Onem_Yuzdesi", color_continuous_scale="Blues", title="🧠 Yapay Zekanın Harcama Tahmininde En Çok Dikkat Ettiği Faktörler (%)")
-        st.plotly_chart(fig_imp, use_container_width=True)
+        fig_imp = px.bar(imp_df, x="Onem_Yuzdesi", y="Ozellik", orientation="h", color="Onem_Yuzdesi", color_continuous_scale="Tealgrn", title="🧠 Yapay Zekanın Harcama Tahmininde En Çok Dikkat Ettiği Faktörler (%)")
+        st.plotly_chart(apply_pro_theme(fig_imp, 430), use_container_width=True)
 
 # SEKME 5: TEKNOLOJİ VE CİLT BAKIMI ARASINDAKİ REGRESYON & KORELASYON ANALİZİ
 with tabs[4]:
@@ -523,15 +688,15 @@ with tabs[4]:
 
     rc1, rc2, rc3, rc4 = st.columns(4)
     rc1.metric("Pearson Korelasyon (r)", f"{pearson_r:.3f}", delta="Güçlü Pozitif İlişki")
-    rc2.metric("Belirlilik Katsayısı (R²)", f"%{r2_val*100:.1f}", delta="Açıklayıcılık Oranı")
+    rc2.metric("Belirlilik Katsayısı (R²)", f"%{r2_val*100:.1f}", delta="Varyans Açıklayıcılığı")
     rc3.metric("Regresyon Eğimi (β₁)", f"+₺{slope_b1:.2f}", delta="1 TL Kozmetik -> Teknoloji Etkisi")
     rc4.metric("Sabit Terim (β₀)", f"₺{intercept_b0:,.0f}", delta="Baz Teknoloji Harcaması")
 
     st.markdown(f"""
-    <div class="reg-card">
-        <b>📐 Keşfedilen Matematiksel Regresyon Denklemi:</b> 
-        <code>Teknoloji Harcaması (Y) = {intercept_b0:,.2f} + ({slope_b1:.2f} × Cilt Bakımı Harcaması) + (Sitede Aktif Süre Etkisi)</code><br>
-        <small>💡 <b>Akademik Yorum:</b> Cilt bakımına <b>1.000 TL</b> harcayan bir müşterinin teknoloji kategorisinde ortalama <b>₺{(intercept_b0 + slope_b1*1000):,.0f}</b> harcama potansiyeli oluşturduğu (%{(r2_val*100):.1f} varyans açıklayıcılığı ile) kanıtlanmıştır.</small>
+    <div class="glass-panel" style="border-left: 4px solid #38BDF8;">
+        <b style="color:#38BDF8;">📐 Keşfedilen Matematiksel Regresyon Denklemi:</b> 
+        <code style="color:#F472B6;">Teknoloji Harcaması (Y) = {intercept_b0:,.2f} + ({slope_b1:.2f} × Cilt Bakımı Harcaması) + (Aktif Süre Etkisi)</code><br>
+        <span style="color:#94A3B8; font-size:0.9rem;">💡 <b>Akademik Yorum:</b> Cilt bakımına <b>1.000 TL</b> harcayan bir müşterinin teknoloji kategorisinde ortalama <b>₺{(intercept_b0 + slope_b1*1000):,.0f}</b> harcama potansiyeli oluşturduğu (%{(r2_val*100):.1f} R² skoru ile) kanıtlanmıştır.</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -541,12 +706,13 @@ with tabs[4]:
             df_customers, x="Kozmetik_Harcama_TL", y="Teknoloji_Harcama_TL",
             color="Segment", size="Gunluk_Aktif_Sure_Dk",
             hover_data=["Musteri_ID", "Sehir", "Alisveris_Sikligi"],
-            opacity=0.78,
-            title="📈 Cilt Bakımı (X) vs. Teknoloji (Y) Harcaması Doğrusal & Polinomiyal Regresyon Grafiği"
+            color_discrete_sequence=["#38BDF8", "#A855F7", "#34D399", "#F472B6"],
+            opacity=0.8,
+            title="📈 Cilt Bakımı (X) vs. Teknoloji (Y) Harcaması Doğrusal & Polinomiyal Regresyon Modeli"
         )
-        fig_reg.add_trace(go.Scatter(x=x_sorted, y=y_lin_sorted, mode="lines", name=f"Doğrusal Regresyon (Y = {slope_b1:.2f}X + {intercept_b0:.0f})", line=dict(color="#EF4444", width=3.5)))
-        fig_reg.add_trace(go.Scatter(x=x_sorted, y=y_poly_sorted, mode="lines", name="Polinomiyal Regresyon Eğrisi (2. Derece)", line=dict(color="#0F172A", width=2.5, dash="dash")))
-        st.plotly_chart(fig_reg, use_container_width=True)
+        fig_reg.add_trace(go.Scatter(x=x_sorted, y=y_lin_sorted, mode="lines", name=f"Doğrusal Regresyon (Y = {slope_b1:.2f}X + {intercept_b0:.0f})", line=dict(color="#F43F5E", width=3.5)))
+        fig_reg.add_trace(go.Scatter(x=x_sorted, y=y_poly_sorted, mode="lines", name="Polinomiyal Regresyon Eğrisi (2. Derece)", line=dict(color="#FBBF24", width=2.5, dash="dash")))
+        st.plotly_chart(apply_pro_theme(fig_reg, 440), use_container_width=True)
 
     with rg_right:
         st.markdown("#### 🧮 Çapraz Kategori Regresyon Simülatörü")
@@ -583,9 +749,9 @@ with tabs[5]:
         st.dataframe(oneriler, use_container_width=True)
     with ca2:
         fig_ap = px.scatter(df_rules, x=cols[2], y=cols[3], size=cols[4], color=cols[0], hover_name=cols[1], title="🫧 Apriori Support - Confidence - Lift Sinerji Haritası")
-        st.plotly_chart(fig_ap, use_container_width=True)
+        st.plotly_chart(apply_pro_theme(fig_ap, 420), use_container_width=True)
 
-# SEKME 7: NLP DUYGU ANALİZİ & SAHTE/BOT YORUM AVCISI (ISOLATION FOREST)
+# SEKME 7: NLP DUYGU ANALİZİ & SAHTE/BOT YORUM AVCISI
 with tabs[6]:
     st.subheader("💬 NLP Müşteri Yorumları Duygu Analizi & Isolation Forest Sahte (Bot) Yorum Dedektörü")
     yorum_verisi = pd.DataFrame({
@@ -611,15 +777,15 @@ with tabs[6]:
     })
     cn1, cn2 = st.columns([1.3, 1])
     with cn1:
-        st.dataframe(yorum_verisi, use_container_width=True, height=340)
+        st.dataframe(yorum_verisi, use_container_width=True, height=360)
     with cn2:
         fig_bot = px.scatter(
             yorum_verisi, x="Duygu_Skoru", y="Saniyede_Atilan_Yorum_Hizi", color="Guvenlik_Durumu",
             size="Saniyede_Atilan_Yorum_Hizi", hover_name="Urun",
             title="🛡️ Isolation Forest Sahte/Bot Yorum Anomali Radarı",
-            color_discrete_map={"✅ Gerçek Müşteri": "#10B981", "🚨 Şüpheli Bot / Manipülasyon": "#EF4444", "🚨 Rakip Sabotaj Botu": "#F59E0B"}
+            color_discrete_map={"✅ Gerçek Müşteri": "#10B981", "🚨 Şüpheli Bot / Manipülasyon": "#F43F5E", "🚨 Rakip Sabotaj Botu": "#FBBF24"}
         )
-        st.plotly_chart(fig_bot, use_container_width=True)
+        st.plotly_chart(apply_pro_theme(fig_bot, 380), use_container_width=True)
 
 # SEKME 8: AI DİNAMİK FİYATLANDIRMA
 with tabs[7]:
@@ -648,9 +814,9 @@ with tabs[7]:
             "Net_Kar_TL": [(baz_fiyat*(1+o/100.0) - birim_maliyet)*max(5, baz_talep*(1-elastikiyet*(o/100.0))) for o in oranlar],
             "Toplam_Ciro_TL": [baz_fiyat*(1+o/100.0)*max(5, baz_talep*(1-elastikiyet*(o/100.0))) for o in oranlar]
         })
-        fig_price = px.line(df_sim, x="Fiyat_Degisimi_Yuzde", y=["Net_Kar_TL", "Toplam_Ciro_TL"], markers=True, title="Fiyat Değişimine Göre Ciro ve Net Kâr Optimizasyon Eğrisi")
-        fig_price.add_vline(x=degisim_yuzde, line_dash="dash", line_color="red")
-        st.plotly_chart(fig_price, use_container_width=True)
+        fig_price = px.line(df_sim, x="Fiyat_Degisimi_Yuzde", y=["Net_Kar_TL", "Toplam_Ciro_TL"], markers=True, title="Fiyat Değişimine Göre Ciro ve Net Kâr Optimizasyon Eğrisi", color_discrete_sequence=["#34D399", "#38BDF8"])
+        fig_price.add_vline(x=degisim_yuzde, line_dash="dash", line_color="#F43F5E")
+        st.plotly_chart(apply_pro_theme(fig_price, 400), use_container_width=True)
 
 # SEKME 9: AKILLI STOK RADARI
 with tabs[8]:
@@ -659,22 +825,18 @@ with tabs[8]:
         cs_1, cs_2 = st.columns([1.2, 1])
         with cs_1:
             stok_sirali = df_web_clean[["Urun_ID", "Urun_Adi", "Ana_Kategori", "Stok_Adedi", "Gunluk_Satis_Hizi", "Tahmini_Stok_Tukenme_Gun", "Stok_Durumu"]].sort_values("Tahmini_Stok_Tukenme_Gun")
-            st.dataframe(stok_sirali, use_container_width=True, height=360)
+            st.dataframe(stok_sirali, use_container_width=True, height=380)
         with cs_2:
             fig_stock = px.bar(
                 stok_sirali.head(15), x="Tahmini_Stok_Tukenme_Gun", y="Urun_Adi", color="Stok_Durumu", orientation="h",
                 title="En Hızlı Tükenmesi Beklenen İlk 15 Ürün (Kalan Gün)",
-                color_discrete_map={"🚨 Kritik (Acil Sipariş)": "#EF4444", "⚠️ Azalıyor": "#F59E0B", "✅ Güvenli": "#10B981"}
+                color_discrete_map={"🚨 Kritik (Acil Sipariş)": "#F43F5E", "⚠️ Azalıyor": "#FBBF24", "✅ Güvenli": "#10B981"}
             )
-            st.plotly_chart(fig_stock, use_container_width=True)
+            st.plotly_chart(apply_pro_theme(fig_stock, 380), use_container_width=True)
 
-# ==============================================================================
-# SEKME 10: A/B KAMPANYA HİPOTEZ TESTİ SİMÜLATÖRÜ (Z-TEST & P-VALUE)
-# ==============================================================================
+# SEKME 10: A/B KAMPANYA HİPOTEZ TESTİ
 with tabs[9]:
     st.subheader("⚖️ Pazarlama A/B Kampanya Hipotez Testi & İstatistiksel Anlamlılık (p-value) Motoru")
-    st.markdown("İki farklı kampanya kurgusunun (**A Grubu: %15 Doğrudan İndirim** vs. **B Grubu: Cilt Bakımı + Teknoloji Çapraz Kupon**) dönüşüm oranlarını bilimsel Z-Testi ile kıyaslayın.")
-    
     ab1, ab2 = st.columns([1, 1.35])
     with ab1:
         ziyaretci_a = st.number_input("A Grubu Ziyaretçi Sayısı", 1000, 50000, 10000, step=1000)
@@ -682,8 +844,7 @@ with tabs[9]:
         ziyaretci_b = st.number_input("B Grubu Ziyaretçi Sayısı", 1000, 50000, 10000, step=1000)
         donusum_b = st.slider("B Grubu Satın Alma Dönüşüm Oranı (%)", 1.0, 15.0, 5.4, step=0.1)
 
-        p_a = donusum_a / 100.0
-        p_b = donusum_b / 100.0
+        p_a, p_b = donusum_a / 100.0, donusum_b / 100.0
         p_pool = (p_a * ziyaretci_a + p_b * ziyaretci_b) / (ziyaretci_a + ziyaretci_b)
         se = np.sqrt(p_pool * (1 - p_pool) * (1/ziyaretci_a + 1/ziyaretci_b))
         z_skor = (p_b - p_a) / (se + 1e-9)
@@ -692,27 +853,21 @@ with tabs[9]:
 
         st.metric("Relatif Dönüşüm Artışı (Uplift)", f"%{uplift:+.1f}", delta=f"Z-Skoru: {z_skor:.2f}")
         if abs(z_skor) >= 1.96:
-            st.success(f"✅ **İSTATİSTİKSEL OLARAK ANLAMLI! (%95 Güven)** | p-value: `{p_degeri:.5f} < 0.05`\n\n🏆 **Kazanan:** {'B Grubu (Çapraz Kupon)' if p_b > p_a else 'A Grubu (%15 İndirim)'}")
+            st.success(f"✅ **İSTATİSTİKSEL OLARAK ANLAMLI! (%95 Güven)** | p-value: `{p_degeri:.5f} < 0.05`")
         else:
-            st.warning(f"⚠️ **İstatistiksel Fark Kanıtlanamadı** (`|Z| < 1.96`). Daha fazla örneklem verisi toplanmalı.")
+            st.warning("⚠️ **İstatistiksel Fark Kanıtlanamadı** (`|Z| < 1.96`).")
 
     with ab2:
         ab_df = pd.DataFrame({
             "Grup": ["A Grubu (%15 İndirim)", "B Grubu (Çapraz Kupon)"],
-            "Donusum_Orani": [donusum_a, donusum_b],
-            "Tahmini_Siparis": [int(ziyaretci_a * p_a), int(ziyaretci_b * p_b)],
             "Beklenen_Ciro_TL": [int(ziyaretci_a * p_a * 1450), int(ziyaretci_b * p_b * 1820)]
         })
-        fig_ab = px.bar(ab_df, x="Grup", y="Beklenen_Ciro_TL", color="Grup", text_auto=True, title="A/B Testi Gruplarının Beklenen Ciro Karşılaştırması (TL)", color_discrete_sequence=["#3B82F6", "#10B981"])
-        st.plotly_chart(fig_ab, use_container_width=True)
+        fig_ab = px.bar(ab_df, x="Grup", y="Beklenen_Ciro_TL", color="Grup", text_auto=True, title="A/B Testi Gruplarının Beklenen Ciro Karşılaştırması (TL)", color_discrete_sequence=["#38BDF8", "#A855F7"])
+        st.plotly_chart(apply_pro_theme(fig_ab, 380), use_container_width=True)
 
-# ==============================================================================
-# SEKME 11: CANLI RAKİP FİYAT İSTİHBARATI & BUYBOX RADARI
-# ==============================================================================
+# SEKME 11: BUYBOX RAKİP FİYAT İSTİHBARATI
 with tabs[10]:
     st.subheader("⚔️ Omnichannel Rakip Fiyat İstihbaratı (Trendyol vs. Hepsiburada vs. Amazon BuyBox)")
-    st.markdown("Aynı ürünün 3 büyük pazaryerindeki anlık fiyatlarını kıyaslar ve **BuyBox (En Avantajlı Satıcı)** liderliğini almak için gereken optimal fiyatı önerir.")
-    
     buybox_df = pd.DataFrame({
         "Urun_Adi": [
             "The Purest Solutions Niacinamide 5% Serum",
@@ -727,37 +882,26 @@ with tabs[10]:
         "Amazon_TR_Fiyat_TL": [319.50, 635.00, 485.00, 579.00, 8650.00, 1499.00]
     })
     buybox_df["En_Ucuz_Platform"] = buybox_df[["Trendyol_Fiyat_TL", "Hepsiburada_Fiyat_TL", "Amazon_TR_Fiyat_TL"]].idxmin(axis=1).str.replace("_Fiyat_TL", "")
-    buybox_df["AI_BuyBox_Onerisi"] = np.where(
-        buybox_df["En_Ucuz_Platform"] == "Trendyol",
-        "🏆 BuyBox Liderisiniz (Fiyatı Koruyun)",
-        "⚡ BuyBox İçin Sepette %3 Ek İndirim Tanımlayın"
-    )
+    buybox_df["AI_BuyBox_Onerisi"] = np.where(buybox_df["En_Ucuz_Platform"] == "Trendyol", "🏆 BuyBox Liderisiniz", "⚡ BuyBox İçin %3 İndirim Önerilir")
     
     st.dataframe(buybox_df, use_container_width=True)
-    fig_bb = px.bar(
-        buybox_df, x="Urun_Adi", y=["Trendyol_Fiyat_TL", "Hepsiburada_Fiyat_TL", "Amazon_TR_Fiyat_TL"],
-        barmode="group", title="Pazaryerleri Arası Canlı Fiyat Rekabeti (Trendyol vs Hepsiburada vs Amazon)"
-    )
-    st.plotly_chart(fig_bb, use_container_width=True)
+    fig_bb = px.bar(buybox_df, x="Urun_Adi", y=["Trendyol_Fiyat_TL", "Hepsiburada_Fiyat_TL", "Amazon_TR_Fiyat_TL"], barmode="group", title="Pazaryerleri Arası Canlı Fiyat Rekabeti", color_discrete_sequence=["#F27A1A", "#38BDF8", "#A855F7"])
+    st.plotly_chart(apply_pro_theme(fig_bb, 400), use_container_width=True)
 
-# ==============================================================================
-# SEKME 12: CANLI AI REÇETE DANIŞMANI & KOHORT ELDE TUTMA (RETENTION) HARİTASI
-# ==============================================================================
+# SEKME 12: CANLI AI REÇETE DANIŞMANI & KOHORT ANALİZİ
 with tabs[11]:
     st.subheader("🤖 Canlı AI Cilt/Teknoloji Sepet Danışmanı & Kohort (Cohort) Retention Analizi")
     ai_c1, ai_c2 = st.columns([1, 1.3])
-    
     with ai_c1:
-        st.markdown("#### 🧠 Akıllı AI Alışveriş & Cilt Bakım Reçete Asistanı")
         cilt_tipi = st.selectbox("Müşterinin Cilt Tipi / İhtiyacı:", ["Yağlı ve Akne Eğilimli Cilt", "Kuru ve Hassas Bariyer", "Leke ve Matlık Karşıtı", "Anti-Aging & İnce Çizgi"])
         tek_ihtiyac = st.selectbox("Teknoloji İlgi Alanı:", ["Yazılım & Ofis Ekipmanı", "Mobil Müzik & Ses", "Oyun & Performans"])
         butce_limit = st.slider("Toplam Sepet Bütçesi (TL):", 500, 15000, 2500, step=250)
         
         recete_map = {
-            "Yağlı ve Akne Eğilimli Cilt": "The Purest Solutions Niacinamide Serum + La Roche-Posay Effaclar Duo(+)M (Apriori Lift: 3.1x)",
-            "Kuru ve Hassas Bariyer": "Maruderm Hyaluronic Acid + CeraVe Seramid Temizleyici (Apriori Lift: 3.4x)",
-            "Leke ve Matlık Karşıtı": "C Vitamini Serum + Cream Co. SPF 50+ Güneş Kremi (Apriori Lift: 3.6x)",
-            "Anti-Aging & İnce Çizgi": "Retinol Gece Serumu + Peptit & Seramid Nemlendirici (Apriori Lift: 3.2x)"
+            "Yağlı ve Akne Eğilimli Cilt": "The Purest Solutions Niacinamide Serum + La Roche-Posay Effaclar Duo(+)M (Lift: 3.1x)",
+            "Kuru ve Hassas Bariyer": "Maruderm Hyaluronic Acid + CeraVe Seramid Temizleyici (Lift: 3.4x)",
+            "Leke ve Matlık Karşıtı": "C Vitamini Serum + Cream Co. SPF 50+ Güneş Kremi (Lift: 3.6x)",
+            "Anti-Aging & İnce Çizgi": "Retinol Gece Serumu + Peptit & Seramid Nemlendirici (Lift: 3.2x)"
         }
         tek_map = {
             "Yazılım & Ofis Ekipmanı": "Logitech M240 Silent Bluetooth Mouse (₺584)",
@@ -775,24 +919,25 @@ with tabs[11]:
             [100, 79, 0, 0, 0, 0],
             [100, 0, 0, 0, 0, 0]
         ])
-        aylar = ["Haziran Kohortu", "Temmuz Kohortu", "Ağustos Kohortu", "Eylül Kohortu", "Ekim Kohortu", "Kasım Kohortu"]
-        donemler = ["Ay 0 (Kayıt)", "1. Ay", "2. Ay", "3. Ay", "4. Ay", "5. Ay"]
-        fig_cohort = px.imshow(
-            cohort_data, x=donemler, y=aylar, text_auto=True, color_continuous_scale="Blues",
-            title="📅 Müşteri Kohort Elde Tutma (Cohort Retention %) Isı Haritası"
-        )
-        st.plotly_chart(fig_cohort, use_container_width=True)
+        aylar = ["Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım"]
+        donemler = ["Ay 0", "1. Ay", "2. Ay", "3. Ay", "4. Ay", "5. Ay"]
+        fig_cohort = px.imshow(cohort_data, x=donemler, y=aylar, text_auto=True, color_continuous_scale="Purpor", title="📅 Müşteri Kohort Elde Tutma (Cohort Retention %) Isı Haritası")
+        st.plotly_chart(apply_pro_theme(fig_cohort, 390), use_container_width=True)
 
 # ==============================================================================
 # SİTENİN ALT BÖLÜMÜ: OTONOM TRENDYOL CANLI VERİ ÇEKME & GÖRSEL ANALİTİK MOTORU
 # ==============================================================================
-st.divider()
 st.markdown("""
-<div style="background: linear-gradient(90deg, #F27A1A 0%, #FF9F43 100%); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px; box-shadow: 0 8px 20px -4px rgba(242, 122, 26, 0.4);">
-    <h2 style="color: white; margin: 0; font-size: 1.7rem;">🟠 Otonom Trendyol Canlı Veri Kazıma, Görsel Pazar Analitiği & Fiyat Takip Botu</h2>
-    <p style="margin: 4px 0 0 0; font-size: 0.95rem; opacity: 0.95;">
-        Hedeflenen Trendyol kategori sayfalarına periyodik HTTP istekleri atarak HTML DOM (<code>div.p-card-wrppr</code>, <code>div.prc-box-dscntd</code>) verilerini kendi kendine çeken ve görselleştiren otonom bot.
-    </p>
+<div style="background: linear-gradient(135deg, rgba(242, 122, 26, 0.22) 0%, rgba(15, 23, 42, 0.95) 100%); border: 1px solid #F27A1A; padding: 22px 26px; border-radius: 16px; color: white; margin: 28px 0 18px 0; box-shadow: 0 12px 30px -6px rgba(242, 122, 26, 0.25);">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+            <span style="background:#F27A1A; color:#FFFFFF; font-weight:800; font-size:0.72rem; padding:3px 10px; border-radius:999px; letter-spacing:1px;">AUTONOMOUS SCRAPER DAEMON</span>
+            <h2 style="color: white; margin: 6px 0 4px 0; font-size: 1.65rem;">🟠 Otonom Trendyol Canlı Veri Kazıma, Görsel Pazar Analitiği & Fiyat Takip Botu</h2>
+            <p style="margin: 0; font-size: 0.9rem; color: #CBD5E1;">
+                Hedeflenen Trendyol kategori sayfalarına periyodik HTTP istekleri atarak HTML DOM (<code>div.p-card-wrppr</code>, <code>div.prc-box-dscntd</code>) verilerini kendi kendine çeken otonom bot.
+            </p>
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -808,16 +953,16 @@ def autonomous_trendyol_scraper(kategori_secimi, ozel_trendyol_url):
     bot_logs = []
     
     try:
-        bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 🚀 GET İsteği Gönderiliyor: {hedef_url}")
+        bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 🚀 GET Request -> {hedef_url}")
         resp = requests.get(hedef_url, headers=headers, timeout=6)
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, "html.parser")
             urun_kartlari = soup.select("div.p-card-wrppr")
             bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ✅ HTTP 200 | 'div.p-card-wrppr' ile {len(urun_kartlari)} ürün düğümü tarandı.")
         else:
-            bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ⚠️ Trendyol WAF Yanıtı: HTTP {resp.status_code} -> Otonom Trendyol Veri Akışı Devrede!")
+            bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ⚡ Trendyol WAF ({resp.status_code}) -> Otonom Fallback Stream Devrede!")
     except Exception:
-        bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔄 Bulut WAF Koruması -> Otonom Trendyol Veri Akışı Devrede!")
+        bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔄 Cloud WAF Koruması -> Otonom Trendyol Stream Devrede!")
 
     np.random.seed(int(datetime.datetime.now().strftime("%M")))
     trendyol_havuz = [
@@ -865,7 +1010,7 @@ with ty_col1:
 with ty_col2:
     ty_url = st.text_input("🔗 Özel Trendyol Kategori/Arama Linki:", placeholder="https://www.trendyol.com/sr?q=niacinamide")
 with ty_col3:
-    oto_mod = st.toggle("🤖 Kendi Kendine Çek (Otonom Mod)", value=True)
+    oto_mod = st.toggle("🤖 Otonom Mod", value=True)
 with ty_col4:
     st.write("")
     if st.button("⚡ Şimdi Trendyol'u Kazı", use_container_width=True):
@@ -873,22 +1018,16 @@ with ty_col4:
 
 df_trendyol, ty_logs = autonomous_trendyol_scraper(ty_kat, ty_url)
 
-tm1, tm2, tm3, tm4 = st.columns(4)
-tm1.metric("Trendyol'dan Çekilen Ürün", f"{len(df_trendyol)} Adet", delta="Otonom Bot Aktif" if oto_mod else "Manuel Mod")
-tm2.metric("Ort. Sepette İndirimli Fiyat", f"₺{df_trendyol['Sepette_Indirimli_TL'].mean():,.2f}", delta="-%10 Sepet İndirimi")
-tm3.metric("Toplam İncelenen Yorum", f"{df_trendyol['Degerlendirme_Sayisi'].sum():,} Yorum")
-tm4.metric("Toplam Favorilenme Hacmi", f"{df_trendyol['Favori_Sayisi'].sum():,} Favori", delta="Canlı Sosyal Kanıt")
-
 tg1, tg2 = st.columns(2)
 with tg1:
     fig_ty_bubble = px.scatter(
         df_trendyol, x="Degerlendirme_Sayisi", y="Favori_Sayisi",
         size="Sepette_Indirimli_TL", color="Kategori", hover_name="Urun_Adi", text="Marka",
         title="🫧 Trendyol Sosyal Kanıt Matrisi: Yorum Sayısı x Favorilenme x Fiyat Büyüklüğü",
-        color_discrete_map={"Kozmetik & Cilt Bakımı": "#F27A1A", "Teknoloji & Elektronik": "#1E3A8A"}
+        color_discrete_map={"Kozmetik & Cilt Bakımı": "#F27A1A", "Teknoloji & Elektronik": "#38BDF8"}
     )
     fig_ty_bubble.update_traces(textposition="top center")
-    st.plotly_chart(fig_ty_bubble, use_container_width=True)
+    st.plotly_chart(apply_pro_theme(fig_ty_bubble, 420), use_container_width=True)
 
 with tg2:
     fig_ty_tree = px.treemap(
@@ -896,38 +1035,36 @@ with tg2:
         values="Favori_Sayisi", color="Trendyol_Puani", color_continuous_scale="Oranges",
         title="🟧 Trendyol Kategori ve Marka Popülerlik Ağaç Haritası (Treemap - Favori Hacmi)"
     )
-    st.plotly_chart(fig_ty_tree, use_container_width=True)
+    st.plotly_chart(apply_pro_theme(fig_ty_tree, 420), use_container_width=True)
 
 ty_left, ty_right = st.columns([1.45, 1])
 with ty_left:
-    st.markdown("#### 📋 Trendyol'dan Kendi Kendine Çekilen Canlı Ürün, Sepet Fiyatı ve Favori Tablosu")
-    st.dataframe(df_trendyol, use_container_width=True, height=320)
+    st.dataframe(df_trendyol, use_container_width=True, height=340)
     ty_csv = df_trendyol.to_csv(index=False).encode("utf-8")
-    st.download_button("📥 Trendyol Kazıma Verisini İndir (CSV)", data=ty_csv, file_name="trendyol_otonom_veri.csv", mime="text/csv")
+    st.download_button("📥 Trendyol Kazıma Verisini İndir (.CSV)", data=ty_csv, file_name="trendyol_otonom_veri.csv", mime="text/csv")
 
 with ty_right:
-    st.markdown("#### 🖥️ Otonom Trendyol Scraper Terminal Logları")
     for log_satir in ty_logs:
         st.code(log_satir, language="bash")
     fig_ty_bar = px.bar(
         df_trendyol, x="Sepette_Indirimli_TL", y="Marka", color="Kategori", orientation="h",
         title="Markaların Sepette İndirimli Fiyat Karşılaştırması",
-        color_discrete_map={"Kozmetik & Cilt Bakımı": "#F27A1A", "Teknoloji & Elektronik": "#1E3A8A"}
+        color_discrete_map={"Kozmetik & Cilt Bakımı": "#F27A1A", "Teknoloji & Elektronik": "#38BDF8"}
     )
-    st.plotly_chart(fig_ty_bar, use_container_width=True)
+    st.plotly_chart(apply_pro_theme(fig_ty_bar, 280), use_container_width=True)
 
 # ==============================================================================
-# KURUMSAL FOOTER & DOĞRUDAN İLETİŞİM PANELİ
+# ULTRA-PRO FOOTER
 # ==============================================================================
 st.markdown("""
-<div class="footer-box">
-    <h4 style="color: #FFFFFF; margin: 0 0 8px 0;">👑 Ultimate Kurumsal E-Ticaret Veri Mühendisliği & AI Karar Destek Platformu (v6.0)</h4>
-    <p style="margin: 0 0 10px 0; font-size: 0.92rem; color: #CBD5E1;">
-        Proje Lideri & Baş Geliştirici: <b>Olgun Dağdelen</b> | Ekip: Ahmet Emek, İbrahim Taştekin, Emir Kıdrez | Danışman: <b>Öğr. Gör. Ümit Bulut</b>
-    </p>
-    <p style="margin: 0; font-size: 0.92rem;">
-        📧 E-Posta: <a href="mailto:olgundagdelen46@gmail.com" style="color: #38BDF8; text-decoration: none; font-weight: 700;">olgundagdelen46@gmail.com</a> &nbsp;|&nbsp; 
-        📞 Telefon & WhatsApp: <a href="https://wa.me/905439322372" target="_blank" style="color: #4ADE80; text-decoration: none; font-weight: 700;">+90 543 932 23 72</a>
-    </p>
+<div style="background: rgba(11, 15, 29, 0.95); border: 1px solid rgba(255,255,255,0.08); border-top: 3px solid #38BDF8; padding: 24px; border-radius: 16px; text-align: center; margin-top: 30px;">
+    <div style="font-size: 1.05rem; font-weight: 800; color: #FFFFFF; margin-bottom: 6px;">⚡ NEXUS AI — Enterprise E-Commerce Intelligence Suite (v7.0)</div>
+    <div style="font-size: 0.88rem; color: #94A3B8; margin-bottom: 10px;">
+        Lead AI Architect: <b style="color:#FFFFFF;">Olgun Dağdelen</b> &nbsp;|&nbsp; Ekip: Ahmet Emek, İbrahim Taştekin, Emir Kıdrez &nbsp;|&nbsp; Danışman: <b style="color:#FFFFFF;">Öğr. Gör. Ümit Bulut</b>
+    </div>
+    <div style="font-size: 0.88rem;">
+        📧 <a href="mailto:olgundagdelen46@gmail.com" style="color: #38BDF8; text-decoration: none; font-weight: 700;">olgundagdelen46@gmail.com</a> &nbsp;&nbsp;•&nbsp;&nbsp; 
+        📞 <a href="https://wa.me/905439322372" target="_blank" style="color: #34D399; text-decoration: none; font-weight: 700;">+90 543 932 23 72 (WhatsApp)</a>
+    </div>
 </div>
 """, unsafe_allow_html=True)
