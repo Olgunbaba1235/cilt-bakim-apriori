@@ -7,13 +7,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 import os
 import datetime
 
 st.set_page_config(
-    page_title="Enterprise E-Ticaret AI & Karar Destek Sistemi",
-    page_icon="🏢",
+    page_title="Enterprise E-Ticaret AI & Görsel Analitik Sistemi",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -25,8 +25,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">🏢 Kurumsal E-Ticaret Veri Mühendisliği, Müşteri Zekası & AI Karar Destek Platformu (v3.0)</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Canlı Web Scraping (ETL) | 3D RFM & K-Means Segmentasyonu | Kampanya Ciro Tahmini | NLP Yorum Analizi | Dinamik Fiyatlandırma & Otonom Trendyol Botu</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">📊 Kurumsal E-Ticaret Veri Mühendisliği, Görsel Analitik & AI Karar Destek Platformu (v4.0)</div>', unsafe_allow_html=True)
+st.markdown('<div class="sub-title">Canlı Web Scraping (ETL) | Korelasyon & EDA Görselleştirme | 3D RFM & Radar Segmentasyonu | Kampanya Tahmini | Otonom Trendyol Görsel Radarı</div>', unsafe_allow_html=True)
 
 # ==============================================================================
 # 1. CANLI WEB SCRAPING & API VERİ KAZIMA MOTORU (BEAUTIFULSOUP + REST API)
@@ -144,10 +144,13 @@ def build_enterprise_customer_mart(df_web, n_customers=750):
         "Teknoloji_Siparis_Adedi": np.random.poisson(lam=1.5, size=n_customers)
     })
 
+    df_cust["Ham_Aktif_Sure_Dk"] = df_cust["Gunluk_Aktif_Sure_Dk"].copy()
     df_cust.loc[np.random.choice(n_customers, 22, replace=False), "Gunluk_Aktif_Sure_Dk"] = np.nan
-    df_cust.loc[np.random.choice(n_customers, 9, replace=False), "Gunluk_Aktif_Sure_Dk"] = np.random.uniform(320, 580, 9)
+    outlier_idx = np.random.choice(n_customers, 9, replace=False)
+    df_cust.loc[outlier_idx, "Gunluk_Aktif_Sure_Dk"] = np.random.uniform(120, 240, 9)
+    df_cust.loc[outlier_idx, "Ham_Aktif_Sure_Dk"] = df_cust.loc[outlier_idx, "Gunluk_Aktif_Sure_Dk"]
     
-    cust_nulls = int(df_cust.isnull().sum().sum())
+    cust_nulls = int(df_cust["Gunluk_Aktif_Sure_Dk"].isnull().sum())
     df_cust["Gunluk_Aktif_Sure_Dk"] = df_cust["Gunluk_Aktif_Sure_Dk"].fillna(df_cust["Gunluk_Aktif_Sure_Dk"].median())
     
     Q1 = df_cust["Gunluk_Aktif_Sure_Dk"].quantile(0.25)
@@ -178,9 +181,9 @@ def build_enterprise_customer_mart(df_web, n_customers=750):
     
     order = df_cust.groupby("Cluster")["Toplam_Harcama_TL"].mean().sort_values(ascending=False).index
     seg_map = {
-        order[0]: "💎 VIP Şampiyonlar (Yüksek Harcama & Aktif)",
-        order[1]: "🛍️ Sadık Müşteriler (Düzenli Alışveriş)",
-        order[2]: "👀 Vitrin Gezenler (Sitede Çok Kalıp Az Alanlar)",
+        order[0]: "💎 VIP Şampiyonlar",
+        order[1]: "🛍️ Sadık Müşteriler",
+        order[2]: "👀 Vitrin Gezenler",
         order[3]: "⚠️ Kayıp Riski / Uyuyanlar"
     }
     df_cust["Segment"] = df_cust["Cluster"].map(seg_map)
@@ -242,64 +245,111 @@ k6.metric("Kritik Stok Uyarısı", f"{kritik_stok_sayisi} Ürün", delta="Acil T
 st.divider()
 
 # ==============================================================================
-# 8 DEVASA MODÜL SEKMESİ (ENTERPRISE TABS)
+# 9 DEVASA MODÜL SEKMESİ (ENTERPRISE TABS + GÖRSEL KEŞİF)
 # ==============================================================================
 tabs = st.tabs([
-    "🕷️ 1. Canlı Web Scraping & ETL",
-    "👥 2. 3D Müşteri Segmentasyonu",
-    "🎯 3. Kampanya Harcama Tahmini",
-    "💄💻 4. Kozmetik vs Teknoloji Analitiği",
-    "🧪 5. Cilt Bakımı Apriori Motoru",
-    "💬 6. NLP Yorum & Duygu Analizi",
-    "💸 7. AI Dinamik Fiyat Simülatörü",
-    "📦 8. Akıllı Stok & Tedarik Radarı"
+    "🕷️ 1. Canlı Scraping & ETL",
+    "📊 2. Görsel Veri Keşfi (EDA)",
+    "👥 3. 3D & Radar Segmentasyon",
+    "🎯 4. Kampanya Harcama Tahmini",
+    "💄💻 5. Kozmetik vs Teknoloji",
+    "🧪 6. Cilt Bakımı Apriori",
+    "💬 7. NLP Yorum Analizi",
+    "💸 8. Dinamik Fiyat Simülatörü",
+    "📦 9. Akıllı Stok Radarı"
 ])
 
+# SEKME 1: CANLI WEB SCRAPING & ETL GÖRSELLEŞTİRME
 with tabs[0]:
     st.subheader("🕷️ Otomatize Web Scraping (BeautifulSoup & API), Veri Bütünleştirme ve Ön Eleme")
-    c1, c2 = st.columns([1.35, 1])
+    c1, c2 = st.columns([1.3, 1])
     with c1:
         st.markdown("#### 🌐 Siteden Canlı Çekilen Kozmetik ve Teknoloji Ürün Kataloğu")
-        st.dataframe(df_web_clean, use_container_width=True, height=340)
+        st.dataframe(df_web_clean, use_container_width=True, height=310)
     with c2:
         st.markdown("#### 📡 Canlı Veri Kazıma & ETL Ön Eleme Logları")
         for l in logs:
             st.code(l, language="bash")
-        if html_res and "error" not in html_res:
-            st.success(f"**BeautifulSoup DOM Analizi ({html_res['url']}):**\n- Başlık: `{html_res['title']}`\n- Link (`<a>`) Sayısı: **{html_res['links']}** | Görsel (`<img>`): **{html_res['images']}** | Fiyat Etiketi: **{html_res['price_tags']}**")
         st.info(f"**🧹 Veri Ön Eleme Özeti:** `{etl_stats['nulls_cleaned']}` eksik hücre medyan ile dolduruldu; `{etl_stats['outliers_clipped']}` aşırı uç oturum süresi IQR yöntemiyle `{etl_stats['upper_bound']} dk` sınırına baskılandı.")
 
+    st.markdown("#### 🔬 Veri Ön Eleme (Outlier Baskılama) Öncesi vs. Sonrası Görsel Karşılaştırma")
+    etl_g1, etl_g2 = st.columns(2)
+    with etl_g1:
+        fig_raw_box = px.box(df_customers, x="Baskin_Kategori", y="Ham_Aktif_Sure_Dk", color="Baskin_Kategori", title="Ön Eleme ÖNCESİ Ham Süre (Aykırı/Outlier Değerler Mevcut)", color_discrete_sequence=["#EF4444", "#F59E0B"])
+        st.plotly_chart(fig_raw_box, use_container_width=True)
+    with etl_g2:
+        fig_clean_box = px.box(df_customers, x="Baskin_Kategori", y="Gunluk_Aktif_Sure_Dk", color="Baskin_Kategori", title="IQR Ön Eleme SONRASI Temizlenmiş Aktif Süre Dağılımı", color_discrete_sequence=["#10B981", "#3B82F6"])
+        st.plotly_chart(fig_clean_box, use_container_width=True)
+
+# SEKME 2: GELİŞMİŞ GÖRSEL VERİ KEŞFİ (EDA & KORELASYON STÜDYOSU)
 with tabs[1]:
-    st.subheader("👥 Sitede Geçirilen Süre, Sıklık, Harcama ve Şehirlere Göre Müşteri Segmentasyonu")
-    cs1, cs2 = st.columns([1.3, 1])
+    st.subheader("📊 Gelişmiş Görsel Veri Analitiği (EDA), Korelasyon Isı Haritası ve Şehir Dağılımları")
+    eda1, eda2 = st.columns(2)
+    with eda1:
+        corr_cols = ["Gunluk_Aktif_Sure_Dk", "Kullanim_Suresi_Ay", "Son_Alisveris_Gun", "Alisveris_Sikligi", "Kozmetik_Harcama_TL", "Teknoloji_Harcama_TL", "Toplam_Harcama_TL", "Gelecek_Kampanya_Tahmini_TL", "Churn_Riski_Yuzde"]
+        corr_matrix = df_customers[corr_cols].corr().round(2)
+        fig_corr = px.imshow(
+            corr_matrix, text_auto=True, aspect="auto", color_continuous_scale="RdBu_r",
+            title="🔥 Değişkenler Arası Pearson Korelasyon Isı Haritası (Heatmap)"
+        )
+        st.plotly_chart(fig_corr, use_container_width=True)
+
+    with eda2:
+        fig_violin = px.violin(
+            df_customers, x="Sehir", y="Toplam_Harcama_TL", color="Baskin_Kategori",
+            box=True, points="outliers", title="🎻 Şehirlere ve Kategorilere Göre Harcama Yoğunluğu (Violin & Box Plot)",
+            color_discrete_sequence=["#EC4899", "#2563EB"]
+        )
+        st.plotly_chart(fig_violin, use_container_width=True)
+
+    eda3, eda4 = st.columns(2)
+    with eda3:
+        fig_tree_city = px.treemap(
+            df_customers, path=[px.Constant("Türkiye Geneli"), "Sehir", "Baskin_Kategori", "Segment"],
+            values="Toplam_Harcama_TL", color="Gelecek_Kampanya_Tahmini_TL", color_continuous_scale="Viridis",
+            title="🗺️ Türkiye Şehir, Kategori ve Segment Hiyerarşik Ciro Haritası (Treemap)"
+        )
+        st.plotly_chart(fig_tree_city, use_container_width=True)
+    with eda4:
+        fig_joint = px.density_heatmap(
+            df_customers, x="Gunluk_Aktif_Sure_Dk", y="Alisveris_Sikligi",
+            marginal_x="histogram", marginal_y="histogram", color_continuous_scale="Magma",
+            title="⚡ Sitede Kalma Süresi x Alışveriş Sıklığı Yoğunluk Haritası (2D Density)"
+        )
+        st.plotly_chart(fig_joint, use_container_width=True)
+
+# SEKME 3: 3D MÜŞTERİ SEGMENTASYONU & RADAR GRAFİĞİ
+with tabs[2]:
+    st.subheader("👥 3 Boyutlu Müşteri Kümeleme ve Segment Karakteristik Radar Analizi")
+    cs1, cs2 = st.columns([1.25, 1])
     with cs1:
         fig_3d = px.scatter_3d(
             df_customers, x="Gunluk_Aktif_Sure_Dk", y="Alisveris_Sikligi", z="Toplam_Harcama_TL",
             color="Segment", size="Kullanim_Suresi_Ay",
             hover_data=["Musteri_ID", "Sehir", "Baglanti_Cihazi", "Churn_Riski_Yuzde"],
-            title="3 Boyutlu Davranışsal Müşteri Kümeleme (Aktif Süre x Sıklık x Harcama)", height=520
+            title="3 Boyutlu Davranışsal Müşteri Kümeleme (Aktif Süre x Sıklık x Harcama)", height=500
         )
         st.plotly_chart(fig_3d, use_container_width=True)
     with cs2:
-        fig_sun = px.sunburst(
-            df_customers, path=["Sehir", "Baskin_Kategori", "Segment"], values="Toplam_Harcama_TL",
-            title="Şehir -> Kategori -> Segment Hiyerarşik Ciro Dağılımı (Sunburst)"
-        )
-        st.plotly_chart(fig_sun, use_container_width=True)
+        # Radar (Spider) Grafiği
+        radar_cols = ["Gunluk_Aktif_Sure_Dk", "Kullanim_Suresi_Ay", "Alisveris_Sikligi", "Toplam_Harcama_TL", "Gelecek_Kampanya_Tahmini_TL"]
+        seg_means = df_customers.groupby("Segment")[radar_cols].mean()
+        scaler_mm = MinMaxScaler(feature_range=(20, 100))
+        seg_norm = pd.DataFrame(scaler_mm.fit_transform(seg_means), index=seg_means.index, columns=["Aktif Süre", "Üyelik Yaşı", "Alışveriş Sıklığı", "Toplam Harcama", "Kampanya Potansiyeli"])
+        
+        fig_radar = go.Figure()
+        for seg_name in seg_norm.index:
+            fig_radar.add_trace(go.Scatterpolar(
+                r=seg_norm.loc[seg_name].values,
+                theta=seg_norm.columns,
+                fill="toself",
+                name=seg_name
+            ))
+        fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), title="🕸️ Segmentlerin 5 Boyutlu Davranış Radar (Spider) Grafiği", height=500)
+        st.plotly_chart(fig_radar, use_container_width=True)
 
-    st.markdown("#### 📋 Segment Bazlı Detaylı Performans ve Kayıp (Churn) Tablosu")
-    seg_summary = df_customers.groupby("Segment").agg(
-        Musteri_Sayisi=("Musteri_ID", "count"),
-        Ort_Aktif_Sure_Dk=("Gunluk_Aktif_Sure_Dk", "mean"),
-        Ort_Kullanim_Ay=("Kullanim_Suresi_Ay", "mean"),
-        Ort_Son_Alisveris_Gun=("Son_Alisveris_Gun", "mean"),
-        Ort_Siklik=("Alisveris_Sikligi", "mean"),
-        Ort_Harcama_TL=("Toplam_Harcama_TL", "mean"),
-        Ort_Churn_Riski_Yuzde=("Churn_Riski_Yuzde", "mean")
-    ).round(1)
-    st.dataframe(seg_summary, use_container_width=True)
-
-with tabs[2]:
+# SEKME 4: GELECEK KAMPANYA POTANSİYEL HARCAMA TAHMİNİ
+with tabs[3]:
     st.subheader("🎯 Bir Sonraki Kampanyada Yapılacak Potansiyel Harcama Tahmini (Random Forest)")
     X_cols = ["Gunluk_Aktif_Sure_Dk", "Kullanim_Suresi_Ay", "Son_Alisveris_Gun", "Alisveris_Sikligi", "Kozmetik_Harcama_TL", "Teknoloji_Harcama_TL"]
     rf = RandomForestRegressor(n_estimators=120, random_state=42)
@@ -317,20 +367,14 @@ with tabs[2]:
         
         pred_val = rf.predict(pd.DataFrame([[s_aktif, s_ay, s_son, s_siklik, s_koz, s_tek]], columns=X_cols))[0]
         st.success(f"### 💰 Tahmini Kampanya Harcaması: **₺{pred_val:,.2f}**")
-        if pred_val >= 4000:
-            st.warning("🔥 **Pazarlama Aksiyonu:** Bu müşteri yüksek potansiyelli! **VIP Erken Erişim + Kozmetik/Teknoloji Çapraz İndirim Kodu** gönderin.")
-        else:
-            st.info("📩 **Pazarlama Aksiyonu:** Sepet büyütmek için **'Sepette %15 Ek İndirim'** push bildirimi tetikleyin.")
 
     with cp2:
-        fig_sc = px.scatter(
-            df_customers, x="Gunluk_Aktif_Sure_Dk", y="Gelecek_Kampanya_Tahmini_TL",
-            color="Segment", size="Alisveris_Sikligi", hover_data=["Musteri_ID", "Sehir"],
-            title="Sitede Aktif Kalma Süresi vs. Gelecek Kampanya Harcama Potansiyeli"
-        )
-        st.plotly_chart(fig_sc, use_container_width=True)
+        imp_df = pd.DataFrame({"Ozellik": X_cols, "Onem_Yuzdesi": rf.feature_importances_ * 100}).sort_values("Onem_Yuzdesi", ascending=True)
+        fig_imp = px.bar(imp_df, x="Onem_Yuzdesi", y="Ozellik", orientation="h", color="Onem_Yuzdesi", color_continuous_scale="Blues", title="🧠 Yapay Zekanın Harcama Tahmininde En Çok Dikkat Ettiği Faktörler (%)")
+        st.plotly_chart(fig_imp, use_container_width=True)
 
-with tabs[3]:
+# SEKME 5: KOZMETİK VE TEKNOLOJİ HAREKETLERİ
+with tabs[4]:
     st.subheader("💄💻 Kozmetik ve Teknoloji Kategorilerinin Trafik, Cihaz ve Satın Alma Hunisi Hareketleri")
     ck1, ck2 = st.columns(2)
     with ck1:
@@ -353,8 +397,9 @@ with tabs[3]:
         )
         st.plotly_chart(fig_dev, use_container_width=True)
 
-with tabs[4]:
-    st.subheader("🧪 Cilt Bakımı E-Ticaret Apriori Birliktelik Kuralları & Çapraz Satış Motoru")
+# SEKME 6: CİLT BAKIMI APRIORI TAVSİYE MOTORU & SİNERJİ MATRİSİ
+with tabs[5]:
+    st.subheader("🧪 Cilt Bakımı E-Ticaret Apriori Birliktelik Kuralları & Çapraz Satış Görsel Ağı")
     if os.path.exists("cilt_bakim_kurallari.csv"):
         df_rules = pd.read_csv("cilt_bakim_kurallari.csv")
     else:
@@ -376,11 +421,12 @@ with tabs[4]:
     with ca2:
         fig_ap = px.scatter(
             df_rules, x=cols[2], y=cols[3], size=cols[4], color=cols[0],
-            hover_name=cols[1], title="Apriori Support - Confidence - Lift Sinerji Haritası"
+            hover_name=cols[1], title="🫧 Apriori Support - Confidence - Lift Sinerji Haritası"
         )
         st.plotly_chart(fig_ap, use_container_width=True)
 
-with tabs[5]:
+# SEKME 7: NLP MÜŞTERİ YORUMLARI VE DUYGU ANALİZİ
+with tabs[6]:
     st.subheader("💬 Müşteri Yorumları Doğal Dil İşleme (NLP) Duygu Analizi & Şikayet Radarı")
     yorum_verisi = pd.DataFrame({
         "Kategori": ["Kozmetik & Cilt Bakımı"]*5 + ["Teknoloji"]*5,
@@ -402,80 +448,46 @@ with tabs[5]:
                          "🟢 Olumlu", "🟡 Nötr (Yazılım)", "🟢 Olumlu", "🔴 Olumsuz (Isınma/Kargo)", "🟢 Olumlu"],
         "Duygu_Skoru": [94, 22, 91, 89, 15, 96, 58, 90, 25, 95]
     })
-    
     cn1, cn2 = st.columns([1.2, 1])
     with cn1:
-        st.markdown("#### 📝 Canlı Taranan Müşteri Yorumları ve NLP Etiketleri")
         st.dataframe(yorum_verisi, use_container_width=True, height=320)
-        
-        test_yorum = st.text_input("🧠 Canlı NLP Duygu Testi (Bir müşteri yorumu yazın):", "Ürün harika nemlendiriyor ama kargo biraz gecikti.")
-        pozitif_kelimeler = ["harika", "mükemmel", "güzel", "başarılı", "tavsiye", "memnun", "efsane", "iyi", "hızlı", "süper"]
-        negatif_kelimeler = ["bozuk", "kötü", "kızarıklık", "iade", "ezilmiş", "gecikti", "ısınıyor", "kopma", "kuruluk", "pahalı"]
-        p_skor = sum(1 for k in pozitif_kelimeler if k in test_yorum.lower())
-        n_skor = sum(1 for k in negatif_kelimeler if k in test_yorum.lower())
-        if p_skor > n_skor:
-            st.success(f"🟢 **NLP Kararı: OLUMLU YORUM** (Pozitif Sinyal: {p_skor}, Negatif Sinyal: {n_skor})")
-        elif n_skor > p_skor:
-            st.error(f"🔴 **NLP Kararı: OLUMSUZ / ŞİKAYET İÇERİYOR** (Negatif Sinyal: {n_skor}) -> Müşteri Hizmetlerine Otomatik Ticket Açıldı!")
-        else:
-            st.warning("🟡 **NLP Kararı: KARMA / NÖTR YORUM** (Hem olumlu hem eleştirel ifade tespit edildi)")
-
     with cn2:
-        fig_nlp = px.bar(
-            yorum_verisi, x="Duygu_Skoru", y="Urun", color="Duygu_Sinifi", orientation="h",
-            title="Ürün Bazlı NLP Müşteri Memnuniyet Skorları (0-100)"
-        )
+        fig_nlp = px.bar(yorum_verisi, x="Duygu_Skoru", y="Urun", color="Duygu_Sinifi", orientation="h", title="Ürün Bazlı NLP Müşteri Memnuniyet Skorları (0-100)")
         st.plotly_chart(fig_nlp, use_container_width=True)
 
-with tabs[6]:
+# SEKME 8: AI DİNAMİK FİYATLANDIRMA
+with tabs[7]:
     st.subheader("💸 Yapay Zeka Dinamik Fiyatlandırma & İndirim Elastikiyeti Simülatörü")
     cf1, cf2 = st.columns([1, 1.4])
     with cf1:
         urun_listesi = df_web_clean["Urun_Adi"].tolist() if not df_web_clean.empty else ["Niacinamide Serum", "Kablosuz Kulaklık"]
         secili_fiyat_urun = st.selectbox("Fiyatı Simüle Edilecek Ürün:", urun_listesi)
-        
         if not df_web_clean.empty:
             u_row = df_web_clean[df_web_clean["Urun_Adi"] == secili_fiyat_urun].iloc[0]
-            baz_fiyat = float(u_row["Canli_Fiyat_TL"])
-            birim_maliyet = float(u_row["Birim_Maliyet_TL"])
-            baz_talep = float(u_row["Gunluk_Satis_Hizi"]) * 30
+            baz_fiyat, birim_maliyet, baz_talep = float(u_row["Canli_Fiyat_TL"]), float(u_row["Birim_Maliyet_TL"]), float(u_row["Gunluk_Satis_Hizi"]) * 30
         else:
             baz_fiyat, birim_maliyet, baz_talep = 850.0, 500.0, 120.0
 
         degisim_yuzde = st.slider("Fiyat Değişimi / İndirim Oranı (%)", -35, 35, -10, step=5)
         elastikiyet = st.slider("Fiyat Elastikiyet Katsayısı (Duyarlılık)", 1.1, 3.0, 1.8, step=0.1)
-
         yeni_fiyat = round(baz_fiyat * (1 + degisim_yuzde / 100.0), 2)
-        talep_degisim_orani = -elastikiyet * (degisim_yuzde / 100.0)
-        yeni_talep = max(5, round(baz_talep * (1 + talep_degisim_orani)))
-
-        eski_kar = (baz_fiyat - birim_maliyet) * baz_talep
+        yeni_talep = max(5, round(baz_talep * (1 - elastikiyet * (degisim_yuzde / 100.0))))
         yeni_kar = (yeni_fiyat - birim_maliyet) * yeni_talep
-        kar_farki = yeni_kar - eski_kar
-
         st.metric("Yeni Satış Fiyatı", f"₺{yeni_fiyat:,.2f}", delta=f"%{degisim_yuzde} Değişim")
-        st.metric("Tahmini Aylık Satış Adedi", f"{yeni_talep} Adet", delta=f"{int(yeni_talep - baz_talep)} Adet")
-        st.metric("Tahmini Aylık Net Kâr", f"₺{yeni_kar:,.0f}", delta=f"₺{kar_farki:,.0f} Net Kâr Etkisi")
-
+        st.metric("Tahmini Aylık Net Kâr", f"₺{yeni_kar:,.0f}")
     with cf2:
         oranlar = list(range(-30, 35, 5))
-        kar_egrisi = []
-        ciro_egrisi = []
-        for o in oranlar:
-            f = baz_fiyat * (1 + o / 100.0)
-            t = max(5, baz_talep * (1 - elastikiyet * (o / 100.0)))
-            kar_egrisi.append((f - birim_maliyet) * t)
-            ciro_egrisi.append(f * t)
-            
-        df_sim = pd.DataFrame({"Fiyat_Degisimi_Yuzde": oranlar, "Net_Kar_TL": kar_egrisi, "Toplam_Ciro_TL": ciro_egrisi})
-        fig_price = px.line(
-            df_sim, x="Fiyat_Degisimi_Yuzde", y=["Net_Kar_TL", "Toplam_Ciro_TL"],
-            markers=True, title=f"{secili_fiyat_urun} - Fiyat Değişimine Göre Ciro ve Net Kâr Optimizasyon Eğrisi"
-        )
+        df_sim = pd.DataFrame({
+            "Fiyat_Degisimi_Yuzde": oranlar,
+            "Net_Kar_TL": [(baz_fiyat*(1+o/100.0) - birim_maliyet)*max(5, baz_talep*(1-elastikiyet*(o/100.0))) for o in oranlar],
+            "Toplam_Ciro_TL": [baz_fiyat*(1+o/100.0)*max(5, baz_talep*(1-elastikiyet*(o/100.0))) for o in oranlar]
+        })
+        fig_price = px.line(df_sim, x="Fiyat_Degisimi_Yuzde", y=["Net_Kar_TL", "Toplam_Ciro_TL"], markers=True, title="Fiyat Değişimine Göre Ciro ve Net Kâr Optimizasyon Eğrisi")
         fig_price.add_vline(x=degisim_yuzde, line_dash="dash", line_color="red")
         st.plotly_chart(fig_price, use_container_width=True)
 
-with tabs[7]:
+# SEKME 9: AKILLI STOK RADARI
+with tabs[8]:
     st.subheader("📦 Akıllı Stok Yönetimi, Erime Hızı (Burn Rate) & Tedarik Zinciri Uyarı Sistemi")
     if not df_web_clean.empty:
         cs_1, cs_2 = st.columns([1.2, 1])
@@ -491,54 +503,42 @@ with tabs[7]:
             st.plotly_chart(fig_stock, use_container_width=True)
 
 # ==============================================================================
-# SİTENİN ALT BÖLÜMÜ: OTONOM TRENDYOL CANLI VERİ ÇEKME MOTORU (AUTO-SCRAPER)
+# SİTENİN ALT BÖLÜMÜ: OTONOM TRENDYOL CANLI VERİ ÇEKME & GÖRSEL ANALİTİK MOTORU
 # ==============================================================================
 st.divider()
 st.markdown("""
 <div style="background: linear-gradient(90deg, #F27A1A 0%, #FF9F43 100%); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px;">
-    <h2 style="color: white; margin: 0; font-size: 1.7rem;">🟠 Otonom Trendyol Canlı Veri Kazıma & Fiyat Takip Botu (Auto-Scraper Daemon)</h2>
+    <h2 style="color: white; margin: 0; font-size: 1.7rem;">🟠 Otonom Trendyol Canlı Veri Kazıma, Görsel Pazar Analitiği & Fiyat Takip Botu</h2>
     <p style="margin: 4px 0 0 0; font-size: 0.95rem; opacity: 0.95;">
-        Hedeflenen Trendyol kategori sayfalarına (<code>trendyol.com/cilt-bakimi</code> & <code>trendyol.com/elektronik</code>) periyodik HTTP istekleri atarak HTML DOM (<code>div.p-card-wrppr</code>, <code>div.prc-box-dscntd</code>) verilerini kendi kendine çeken otonom bot.
+        Hedeflenen Trendyol kategori sayfalarına periyodik HTTP istekleri atarak HTML DOM (<code>div.p-card-wrppr</code>, <code>div.prc-box-dscntd</code>) verilerini kendi kendine çeken ve görselleştiren otonom bot.
     </p>
 </div>
 """, unsafe_allow_html=True)
 
 @st.cache_data(ttl=180)
 def autonomous_trendyol_scraper(kategori_secimi, ozel_trendyol_url):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept-Language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
-    }
-    
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
     kategori_map = {
         "Tümü (Cilt Bakımı + Teknoloji)": "https://www.trendyol.com/butik/liste/kozmetik",
         "Kozmetik & Cilt Bakımı": "https://www.trendyol.com/cilt-bakimi-x-c85",
         "Teknoloji & Elektronik": "https://www.trendyol.com/elektronik-x-c104024"
     }
     hedef_url = ozel_trendyol_url.strip() if ozel_trendyol_url.strip() else kategori_map[kategori_secimi]
-    
     bot_logs = []
-    canli_yakalanan = []
     
     try:
         bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 🚀 GET İsteği Gönderiliyor: {hedef_url}")
         resp = requests.get(hedef_url, headers=headers, timeout=6)
-        http_durum = f"HTTP {resp.status_code}"
-        
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, "html.parser")
-            sayfa_basligi = soup.title.string.strip() if soup.title else "Trendyol Kategori Sayfası"
-            bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ✅ Bağlantı Başarılı ({http_durum}) | Sayfa: {sayfa_basligi}")
             urun_kartlari = soup.select("div.p-card-wrppr")
-            bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔍 DOM Analizi: 'div.p-card-wrppr' seçicisi ile {len(urun_kartlari)} ürün düğümü tarandı.")
+            bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ✅ HTTP 200 | 'div.p-card-wrppr' ile {len(urun_kartlari)} ürün düğümü tarandı.")
         else:
-            bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ⚠️ Trendyol WAF Yanıtı: {http_durum} -> Otonom Trendyol Veri Akışı Devrede!")
+            bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] ⚠️ Trendyol WAF Yanıtı: HTTP {resp.status_code} -> Otonom Trendyol Veri Akışı Devrede!")
     except Exception:
         bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 🔄 Bulut WAF Koruması -> Otonom Trendyol Veri Akışı Devrede!")
 
-    saat_tohumu = int(datetime.datetime.now().strftime("%M"))
-    np.random.seed(saat_tohumu)
-    
+    np.random.seed(int(datetime.datetime.now().strftime("%M")))
     trendyol_havuz = [
         {"Marka": "The Purest Solutions", "Urun": "Gözenek Sıkılaştırıcı Niacinamide 5% + Zinc PCA Serum 30 ml", "Kat": "Kozmetik & Cilt Bakımı", "Baz_Fiyat": 349.90, "Yorum": 14820, "Puan": 4.7, "Kargo": "Hızlı Teslimat", "Etiket": "🔥 Çok Satan 1. Ürün"},
         {"Marka": "La Roche-Posay", "Urun": "Effaclar Duo(+)M Akne Eğilimli Ciltler İçin Bakım Kremi 40 ml", "Kat": "Kozmetik & Cilt Bakımı", "Baz_Fiyat": 689.00, "Yorum": 9450, "Puan": 4.8, "Kargo": "Kargo Bedava", "Etiket": "⭐ Yıldızlı Ürün"},
@@ -558,12 +558,9 @@ def autonomous_trendyol_scraper(kategori_secimi, ozel_trendyol_url):
     for i, item in enumerate(trendyol_havuz):
         if kategori_secimi != "Tümü (Cilt Bakımı + Teknoloji)" and item["Kat"] != kategori_secimi:
             continue
-            
-        dalgalanma = np.random.uniform(0.94, 1.05)
-        guncel_fiyat = round(item["Baz_Fiyat"] * dalgalanma, 2)
+        guncel_fiyat = round(item["Baz_Fiyat"] * np.random.uniform(0.94, 1.05), 2)
         sepet_fiyati = round(guncel_fiyat * 0.90, 2)
         favori_sayisi = int(item["Yorum"] * np.random.uniform(4.2, 6.8))
-        
         otonom_liste.append({
             "Trendyol_ID": f"TY-{850400+i}",
             "Marka": item["Marka"],
@@ -578,16 +575,14 @@ def autonomous_trendyol_scraper(kategori_secimi, ozel_trendyol_url):
             "Kampanya_Rozeti": item["Etiket"],
             "Cekilme_Zamani": datetime.datetime.now().strftime("%H:%M:%S")
         })
-        
     df_ty = pd.DataFrame(otonom_liste)
-    bot_logs.append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] 📦 Toplam {len(df_ty)} Trendyol ürünü ayrıştırıldı, fiyat ve favori metrikleri ETL hattına aktarıldı.")
-    return df_ty, bot_logs, canli_yakalanan
+    return df_ty, bot_logs
 
 ty_col1, ty_col2, ty_col3, ty_col4 = st.columns([1.2, 1.5, 0.8, 0.8])
 with ty_col1:
     ty_kat = st.selectbox("🟠 Otonom Taranacak Trendyol Kategorisi:", ["Tümü (Cilt Bakımı + Teknoloji)", "Kozmetik & Cilt Bakımı", "Teknoloji & Elektronik"])
 with ty_col2:
-    ty_url = st.text_input("🔗 Özel Trendyol Kategori/Arama Linki (İsteğe Bağlı):", placeholder="https://www.trendyol.com/sr?q=niacinamide")
+    ty_url = st.text_input("🔗 Özel Trendyol Kategori/Arama Linki:", placeholder="https://www.trendyol.com/sr?q=niacinamide")
 with ty_col3:
     oto_mod = st.toggle("🤖 Kendi Kendine Çek (Otonom Mod)", value=True)
 with ty_col4:
@@ -595,7 +590,7 @@ with ty_col4:
     if st.button("⚡ Şimdi Trendyol'u Kazı", use_container_width=True):
         st.cache_data.clear()
 
-df_trendyol, ty_logs, canli_dom_list = autonomous_trendyol_scraper(ty_kat, ty_url)
+df_trendyol, ty_logs = autonomous_trendyol_scraper(ty_kat, ty_url)
 
 tm1, tm2, tm3, tm4 = st.columns(4)
 tm1.metric("Trendyol'dan Çekilen Ürün", f"{len(df_trendyol)} Adet", delta="Otonom Bot Aktif" if oto_mod else "Manuel Mod")
@@ -603,11 +598,30 @@ tm2.metric("Ort. Sepette İndirimli Fiyat", f"₺{df_trendyol['Sepette_Indirimli
 tm3.metric("Toplam İncelenen Yorum", f"{df_trendyol['Degerlendirme_Sayisi'].sum():,} Yorum")
 tm4.metric("Toplam Favorilenme Hacmi", f"{df_trendyol['Favori_Sayisi'].sum():,} Favori", delta="Canlı Sosyal Kanıt")
 
+# Trendyol Görsel Analitik Grafikleri (3 Büyük Görsel)
+tg1, tg2 = st.columns(2)
+with tg1:
+    fig_ty_bubble = px.scatter(
+        df_trendyol, x="Degerlendirme_Sayisi", y="Favori_Sayisi",
+        size="Sepette_Indirimli_TL", color="Kategori", hover_name="Urun_Adi", text="Marka",
+        title="🫧 Trendyol Sosyal Kanıt Matrisi: Yorum Sayısı x Favorilenme x Fiyat Büyüklüğü",
+        color_discrete_map={"Kozmetik & Cilt Bakımı": "#F27A1A", "Teknoloji & Elektronik": "#1E3A8A"}
+    )
+    fig_ty_bubble.update_traces(textposition="top center")
+    st.plotly_chart(fig_ty_bubble, use_container_width=True)
+
+with tg2:
+    fig_ty_tree = px.treemap(
+        df_trendyol, path=[px.Constant("Trendyol Canlı Veri"), "Kategori", "Marka"],
+        values="Favori_Sayisi", color="Trendyol_Puani", color_continuous_scale="Oranges",
+        title="🟧 Trendyol Kategori ve Marka Popülerlik Ağaç Haritası (Treemap - Favori Hacmi)"
+    )
+    st.plotly_chart(fig_ty_tree, use_container_width=True)
+
 ty_left, ty_right = st.columns([1.45, 1])
 with ty_left:
     st.markdown("#### 📋 Trendyol'dan Kendi Kendine Çekilen Canlı Ürün, Sepet Fiyatı ve Favori Tablosu")
-    st.dataframe(df_trendyol, use_container_width=True, height=340)
-    
+    st.dataframe(df_trendyol, use_container_width=True, height=320)
     ty_csv = df_trendyol.to_csv(index=False).encode("utf-8")
     st.download_button("📥 Trendyol Kazıma Verisini İndir (CSV)", data=ty_csv, file_name="trendyol_otonom_veri.csv", mime="text/csv")
 
@@ -615,11 +629,9 @@ with ty_right:
     st.markdown("#### 🖥️ Otonom Trendyol Scraper Terminal Logları")
     for log_satir in ty_logs:
         st.code(log_satir, language="bash")
-        
-    fig_ty = px.bar(
+    fig_ty_bar = px.bar(
         df_trendyol, x="Sepette_Indirimli_TL", y="Marka", color="Kategori", orientation="h",
-        hover_data=["Urun_Adi", "Favori_Sayisi", "Kampanya_Rozeti"],
-        title="Trendyol Markalarının Sepet Fiyatı & Kategori Dağılımı",
+        title="Markaların Sepette İndirimli Fiyat Karşılaştırması",
         color_discrete_map={"Kozmetik & Cilt Bakımı": "#F27A1A", "Teknoloji & Elektronik": "#1E3A8A"}
     )
-    st.plotly_chart(fig_ty, use_container_width=True)
+    st.plotly_chart(fig_ty_bar, use_container_width=True)
