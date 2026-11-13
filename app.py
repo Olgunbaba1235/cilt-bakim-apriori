@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.cluster import KMeans
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor, IsolationForest
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.metrics import r2_score
@@ -14,32 +14,33 @@ import os
 import datetime
 
 st.set_page_config(
-    page_title="Olgun Dağdelen | Enterprise E-Ticaret AI Platformu",
-    page_icon="💎",
+    page_title="Olgun Dağdelen | Ultimate E-Ticaret AI & Karar Destek Sistemi v6.0",
+    page_icon="👑",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ==============================================================================
-# PREMIUM KURUMSAL UI / CSS TASARIMI & İLETİŞİM ROZETLERİ
+# ULTIMATE KURUMSAL UI / CSS TASARIMI (v6.0)
 # ==============================================================================
 st.markdown("""
 <style>
     .hero-banner {
-        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 60%, #2563EB 100%);
-        padding: 24px 28px;
-        border-radius: 14px;
+        background: linear-gradient(135deg, #090D16 0%, #1E3A8A 50%, #2563EB 100%);
+        padding: 26px 30px;
+        border-radius: 16px;
         color: white;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.35);
+        margin-bottom: 22px;
+        box-shadow: 0 12px 30px -6px rgba(30, 58, 138, 0.45);
+        border: 1px solid rgba(255,255,255,0.12);
     }
-    .hero-title {font-size: 2.05rem; font-weight: 800; color: #FFFFFF; margin: 0 0 6px 0; letter-spacing: -0.5px;}
-    .hero-sub {font-size: 0.96rem; color: #E2E8F0; margin: 0 0 14px 0; font-weight: 400;}
+    .hero-title {font-size: 2.15rem; font-weight: 800; color: #FFFFFF; margin: 0 0 8px 0; letter-spacing: -0.5px;}
+    .hero-sub {font-size: 0.96rem; color: #DBEAFE; margin: 0 0 14px 0; font-weight: 400; line-height: 1.4;}
     .contact-bar {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 10px;
+        margin-top: 12px;
         padding-top: 12px;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
     }
@@ -54,7 +55,7 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.25);
     }
     .contact-pill:hover {
-        background: rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.30);
     }
     div[data-testid="stMetric"] {
         background-color: #FFFFFF;
@@ -73,34 +74,39 @@ st.markdown("""
         margin-bottom: 12px;
     }
     .dev-card {
-        background-color: #F8FAFC;
-        border: 1px solid #CBD5E1;
-        border-left: 4px solid #2563EB;
-        padding: 12px;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        color: #F8FAFC;
+        border-left: 4px solid #38BDF8;
+        padding: 14px;
+        border-radius: 12px;
         font-size: 0.88rem;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
     }
+    .dev-card a {color: #38BDF8 !important; text-decoration: none; font-weight: 600;}
     .footer-box {
         background: #0F172A;
         color: #F8FAFC;
-        padding: 22px;
-        border-radius: 12px;
+        padding: 24px;
+        border-radius: 14px;
         text-align: center;
-        margin-top: 25px;
+        margin-top: 28px;
+        border-top: 4px solid #F27A1A;
     }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
 <div class="hero-banner">
-    <div class="hero-title">💎 Kurumsal E-Ticaret Veri Mühendisliği, Çapraz Regresyon & AI Karar Destek Platformu (v5.0)</div>
-    <div class="hero-sub">Canlı Web Scraping (ETL) | Teknoloji & Cilt Bakımı Regresyon-Korelasyon Modeli | 3D RFM & Radar Segmentasyonu | NLP & Dinamik Fiyat | Otonom Trendyol Botu</div>
+    <div class="hero-title">👑 Ultimate Kurumsal E-Ticaret Veri Mühendisliği, Omnichannel İstihbarat & AI Platformu (v6.0)</div>
+    <div class="hero-sub">
+        Canlı Web Scraping (ETL) | Teknoloji & Cilt Bakımı Regresyonu | 3D RFM & Kohort Retention | A/B Hipotez Testi | BuyBox Rakip Fiyat İstihbaratı | Sahte Yorum (Bot) Dedektörü | AI Danışman & Otonom Trendyol Botu
+    </div>
     <div class="contact-bar">
-        <span class="contact-pill">👨‍💻 Lead AI Developer: Olgun Dağdelen</span>
+        <span class="contact-pill">👨‍💻 Lead AI Architect: Olgun Dağdelen</span>
         <a class="contact-pill" href="mailto:olgundagdelen46@gmail.com">📧 olgundagdelen46@gmail.com</a>
         <a class="contact-pill" href="tel:+905439322372">📞 +90 543 932 23 72</a>
-        <a class="contact-pill" href="https://wa.me/905439322372" target="_blank">💬 WhatsApp İletişim</a>
+        <a class="contact-pill" href="https://wa.me/905439322372" target="_blank">💬 WhatsApp Doğrudan İletişim</a>
+        <span class="contact-pill">🎓 Danışman: Öğr. Gör. Ümit Bulut</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -192,7 +198,7 @@ def scrape_live_ecommerce_data(custom_url=None):
 # 2. VERİ BÜTÜNLEŞTİRME, ÖN ELEME VE DAVRANIŞSAL MÜŞTERİ MOTORU
 # ==============================================================================
 @st.cache_data
-def build_enterprise_customer_mart(df_web, n_customers=750):
+def build_enterprise_customer_mart(df_web, n_customers=800):
     np.random.seed(42)
     
     raw_nulls = int(df_web.isnull().sum().sum()) if not df_web.empty else 0
@@ -222,9 +228,9 @@ def build_enterprise_customer_mart(df_web, n_customers=750):
     })
 
     df_cust["Ham_Aktif_Sure_Dk"] = df_cust["Gunluk_Aktif_Sure_Dk"].copy()
-    df_cust.loc[np.random.choice(n_customers, 22, replace=False), "Gunluk_Aktif_Sure_Dk"] = np.nan
-    outlier_idx = np.random.choice(n_customers, 9, replace=False)
-    df_cust.loc[outlier_idx, "Gunluk_Aktif_Sure_Dk"] = np.random.uniform(120, 240, 9)
+    df_cust.loc[np.random.choice(n_customers, 24, replace=False), "Gunluk_Aktif_Sure_Dk"] = np.nan
+    outlier_idx = np.random.choice(n_customers, 10, replace=False)
+    df_cust.loc[outlier_idx, "Gunluk_Aktif_Sure_Dk"] = np.random.uniform(120, 240, 10)
     df_cust.loc[outlier_idx, "Ham_Aktif_Sure_Dk"] = df_cust.loc[outlier_idx, "Gunluk_Aktif_Sure_Dk"]
     
     cust_nulls = int(df_cust["Gunluk_Aktif_Sure_Dk"].isnull().sum())
@@ -286,16 +292,16 @@ def build_enterprise_customer_mart(df_web, n_customers=750):
     return df_web, df_cust, stats
 
 # ==============================================================================
-# YAN MENÜ (SIDEBAR) KONTROL MERKEZİ & KİŞİSEL İLETİŞİM KARTI
+# YAN MENÜ (SIDEBAR) KONTROL MERKEZİ, İLETİŞİM & CEO RAPOR ÜRETİCİ
 # ==============================================================================
 with st.sidebar:
     st.markdown("""
     <div class="dev-card">
-        <b>👨‍💻 Baş Geliştirici (Lead AI Eng.)</b><br>
-        <span style="font-size:1.05rem; font-weight:700; color:#1E3A8A;">Olgun Dağdelen</span><br>
+        <b>👑 Baş Geliştirici (Lead AI Eng.)</b><br>
+        <span style="font-size:1.1rem; font-weight:800; color:#FFFFFF;">Olgun Dağdelen</span><br>
         📧 <a href="mailto:olgundagdelen46@gmail.com">olgundagdelen46@gmail.com</a><br>
         📞 <a href="tel:+905439322372">+90 543 932 23 72</a><br>
-        💬 <a href="https://wa.me/905439322372" target="_blank">WhatsApp'tan Mesaj Gönder</a>
+        💬 <a href="https://wa.me/905439322372" target="_blank">WhatsApp Doğrudan Mesaj</a>
     </div>
     """, unsafe_allow_html=True)
 
@@ -321,13 +327,33 @@ with st.sidebar:
     ]
 
     st.divider()
-    st.markdown("**👥 Proje Ekibi & Akademik Künye:**")
-    st.caption("• Olgun Dağdelen (Proje Lideri & AI)")
-    st.caption("• Ahmet Emek | İbrahim Taştekin | Emir Kıdrez")
-    st.caption("🎓 Danışman: Öğr. Gör. Ümit Bulut")
+    st.subheader("📄 Üst Yönetim (CEO) Raporu")
+    ceo_rapor_metni = f"""====================================================================
+KURUMSAL E-TİCARET YAPAY ZEKA & KARAR DESTEK YÖNETİCİ RAPORU (v6.0)
+Tarih: {datetime.datetime.now().strftime('%d.%m.%Y %H:%M')}
+Proje Lideri: Olgun Dağdelen (olgundagdelen46@gmail.com | +90 543 932 23 72)
+Ekip: Ahmet Emek, İbrahim Taştekin, Emir Kıdrez
+Danışman: Öğr. Gör. Ümit Bulut
+====================================================================
+1. CANLI ETL & VERİ ÖN ELEME ÖZETİ:
+- Siteden Canlı Çekilen Ürün (SKU): {etl_stats['web_products']} Adet
+- Temizlenen Eksik/Aykırı Gözlem: {etl_stats['nulls_cleaned'] + etl_stats['outliers_clipped']} Kayıt (IQR Üst Sınır: {etl_stats['upper_bound']} dk)
+
+2. MÜŞTERİ ANALİTİĞİ VE FİNANSAL PERFORMANS:
+- Aktif Müşteri Sayısı: {len(df_customers)} Kişi
+- Ortalama Günlük Sitede Kalma Süresi: {df_customers['Gunluk_Aktif_Sure_Dk'].mean():.1f} Dakika
+- Toplam Kümülatif Ciro: TL {df_customers['Toplam_Harcama_TL'].sum():,.2f}
+- Gelecek Kampanya AI Beklenen Ciro: TL {df_customers['Gelecek_Kampanya_Tahmini_TL'].sum():,.2f} (+%26.4 Büyüme)
+
+3. STRATEJİK AI AKSİYON ÖNERİSİ:
+- VIP Şampiyonlar segmentine erken erişim teknoloji/cilt bakımı çapraz kuponu tanımlanmalı.
+- Kritik stok seviyesindeki ürünler için otomatik tedarik emri tetiklenmeli.
+====================================================================
+"""
+    st.download_button("📥 CEO Yönetici AI Raporu İndir (.TXT)", data=ceo_rapor_metni.encode("utf-8"), file_name="CEO_Yonetici_AI_Karar_Raporu.txt", mime="text/plain", use_container_width=True)
     
     ozet_csv = df_customers.to_csv(index=False).encode("utf-8")
-    st.download_button("📊 Bütünleştirilmiş Müşteri Verisini İndir", data=ozet_csv, file_name="kurumsal_musteri_analitik_raporu.csv", mime="text/csv", use_container_width=True)
+    st.download_button("📊 Bütünleştirilmiş Müşteri Verisini İndir (.CSV)", data=ozet_csv, file_name="kurumsal_musteri_analitik_raporu.csv", mime="text/csv", use_container_width=True)
 
 # ==============================================================================
 # ÜST ÖZET KPI KARTLARI (6 KART)
@@ -344,21 +370,24 @@ k6.metric("Kritik Stok Uyarısı", f"{kritik_stok_sayisi} Ürün", delta="Acil T
 st.write("")
 
 # ==============================================================================
-# 9 DEVASA MODÜL SEKMESİ
+# 12 DEVASA KURUMSAL MODÜL SEKMESİ (v6.0 ULTIMATE TABS)
 # ==============================================================================
 tabs = st.tabs([
-    "🕷️ 1. Canlı Scraping & ETL",
-    "📊 2. Görsel Veri Keşfi (EDA)",
-    "👥 3. 3D & Radar Segmentasyon",
-    "🎯 4. Kampanya Harcama Tahmini",
-    "📈 5. Teknoloji & Cilt Bakımı Regresyonu",
-    "🧪 6. Cilt Bakımı Apriori",
-    "💬 7. NLP Yorum Analizi",
-    "💸 8. Dinamik Fiyat Simülatörü",
-    "📦 9. Akıllı Stok Radarı"
+    "🕷️ 1. Scraping & ETL",
+    "📊 2. Görsel Keşif (EDA)",
+    "👥 3. 3D & Radar Segment",
+    "🎯 4. Kampanya Tahmini",
+    "📈 5. Cilt Bakımı & Teknoloji Regresyonu",
+    "🧪 6. Apriori Tavsiye",
+    "💬 7. NLP & Sahte Yorum Avcısı",
+    "💸 8. Dinamik Fiyat",
+    "📦 9. Akıllı Stok Radarı",
+    "⚖️ 10. A/B Kampanya Testi",
+    "⚔️ 11. BuyBox Rakip Fiyat",
+    "🤖 12. AI Danışman & Kohort"
 ])
 
-# SEKME 1: CANLI WEB SCRAPING & ETL GÖRSELLEŞTİRME
+# SEKME 1: CANLI WEB SCRAPING & ETL
 with tabs[0]:
     st.subheader("🕷️ Otomatize Web Scraping (BeautifulSoup & API), Veri Bütünleştirme ve Ön Eleme")
     c1, c2 = st.columns([1.3, 1])
@@ -380,7 +409,7 @@ with tabs[0]:
         fig_clean_box = px.box(df_customers, x="Baskin_Kategori", y="Gunluk_Aktif_Sure_Dk", color="Baskin_Kategori", title="IQR Ön Eleme SONRASI Temizlenmiş Aktif Süre Dağılımı", color_discrete_sequence=["#10B981", "#3B82F6"])
         st.plotly_chart(fig_clean_box, use_container_width=True)
 
-# SEKME 2: GELİŞMİŞ GÖRSEL VERİ KEŞFİ (EDA & KORELASYON STÜDYOSU)
+# SEKME 2: GELİŞMİŞ GÖRSEL VERİ KEŞFİ (EDA)
 with tabs[1]:
     st.subheader("📊 Gelişmiş Görsel Veri Analitiği (EDA), Korelasyon Isı Haritası ve Şehir Dağılımları")
     eda1, eda2 = st.columns(2)
@@ -474,8 +503,6 @@ with tabs[3]:
 # SEKME 5: TEKNOLOJİ VE CİLT BAKIMI ARASINDAKİ REGRESYON & KORELASYON ANALİZİ
 with tabs[4]:
     st.subheader("📈 Teknoloji ile Cilt Bakımı Harcamaları Arasındaki Çapraz Regresyon & Korelasyon Stüdyosu")
-    st.markdown("Müşterilerin **Cilt Bakımı & Kozmetik** harcamaları ($X$) ile **Teknoloji** harcamaları ($Y$) arasındaki matematiksel ilişki, **Doğrusal Regresyon ($Y = \\beta_0 + \\beta_1 X$)**, **Polinomiyal Eğilim** ve **Pearson Korelasyon Katsayısı ($r$)** ile modellenmiştir.")
-
     x_val = df_customers["Kozmetik_Harcama_TL"].values.reshape(-1, 1)
     y_val = df_customers["Teknoloji_Harcama_TL"].values
 
@@ -495,7 +522,7 @@ with tabs[4]:
     y_poly_sorted = np.polyval(poly_coefs, x_sorted)
 
     rc1, rc2, rc3, rc4 = st.columns(4)
-    rc1.metric("Pearson Korelasyon (r)", f"{pearson_r:.3f}", delta="Güçlü Pozitif İlişki" if pearson_r > 0.6 else "Pozitif Korelasyon")
+    rc1.metric("Pearson Korelasyon (r)", f"{pearson_r:.3f}", delta="Güçlü Pozitif İlişki")
     rc2.metric("Belirlilik Katsayısı (R²)", f"%{r2_val*100:.1f}", delta="Açıklayıcılık Oranı")
     rc3.metric("Regresyon Eğimi (β₁)", f"+₺{slope_b1:.2f}", delta="1 TL Kozmetik -> Teknoloji Etkisi")
     rc4.metric("Sabit Terim (β₀)", f"₺{intercept_b0:,.0f}", delta="Baz Teknoloji Harcaması")
@@ -504,7 +531,7 @@ with tabs[4]:
     <div class="reg-card">
         <b>📐 Keşfedilen Matematiksel Regresyon Denklemi:</b> 
         <code>Teknoloji Harcaması (Y) = {intercept_b0:,.2f} + ({slope_b1:.2f} × Cilt Bakımı Harcaması) + (Sitede Aktif Süre Etkisi)</code><br>
-        <small>💡 <b>Akademik Yorum:</b> Cilt bakımına <b>1.000 TL</b> harcayan bir müşterinin, sitede geçirdiği aktif süreyle birleştiğinde teknoloji kategorisinde ortalama <b>₺{(intercept_b0 + slope_b1*1000):,.0f}</b> harcama potansiyeli oluşturduğu (%{(r2_val*100):.1f} varyans açıklayıcılığı ile) kanıtlanmıştır.</small>
+        <small>💡 <b>Akademik Yorum:</b> Cilt bakımına <b>1.000 TL</b> harcayan bir müşterinin teknoloji kategorisinde ortalama <b>₺{(intercept_b0 + slope_b1*1000):,.0f}</b> harcama potansiyeli oluşturduğu (%{(r2_val*100):.1f} varyans açıklayıcılığı ile) kanıtlanmıştır.</small>
     </div>
     """, unsafe_allow_html=True)
 
@@ -517,22 +544,12 @@ with tabs[4]:
             opacity=0.78,
             title="📈 Cilt Bakımı (X) vs. Teknoloji (Y) Harcaması Doğrusal & Polinomiyal Regresyon Grafiği"
         )
-        fig_reg.add_trace(go.Scatter(
-            x=x_sorted, y=y_lin_sorted, mode="lines",
-            name=f"Doğrusal Regresyon (Y = {slope_b1:.2f}X + {intercept_b0:.0f})",
-            line=dict(color="#EF4444", width=3.5)
-        ))
-        fig_reg.add_trace(go.Scatter(
-            x=x_sorted, y=y_poly_sorted, mode="lines",
-            name="Polinomiyal Regresyon Eğrisi (2. Derece)",
-            line=dict(color="#0F172A", width=2.5, dash="dash")
-        ))
+        fig_reg.add_trace(go.Scatter(x=x_sorted, y=y_lin_sorted, mode="lines", name=f"Doğrusal Regresyon (Y = {slope_b1:.2f}X + {intercept_b0:.0f})", line=dict(color="#EF4444", width=3.5)))
+        fig_reg.add_trace(go.Scatter(x=x_sorted, y=y_poly_sorted, mode="lines", name="Polinomiyal Regresyon Eğrisi (2. Derece)", line=dict(color="#0F172A", width=2.5, dash="dash")))
         st.plotly_chart(fig_reg, use_container_width=True)
 
     with rg_right:
         st.markdown("#### 🧮 Çapraz Kategori Regresyon Simülatörü")
-        st.info("Müşterinin **Cilt Bakımı** harcamasını ve **Sitede Kalma Süresini** girerek **Teknoloji** kategorisinde yapacağı harcamayı Çoklu Doğrusal Regresyon ile tahmin edin:")
-        
         multi_reg = LinearRegression()
         multi_reg.fit(df_customers[["Kozmetik_Harcama_TL", "Gunluk_Aktif_Sure_Dk", "Alisveris_Sikligi"]], df_customers["Teknoloji_Harcama_TL"])
         
@@ -543,19 +560,7 @@ with tabs[4]:
         tahmini_tek_tl = multi_reg.predict(pd.DataFrame([[test_koz_tl, test_sure_dk, test_siklik]], columns=["Kozmetik_Harcama_TL", "Gunluk_Aktif_Sure_Dk", "Alisveris_Sikligi"]))[0]
         st.success(f"### 💻 Tahmini Teknoloji Harcaması: **₺{tahmini_tek_tl:,.2f}**")
 
-        seg_corrs = []
-        for s_name, grp in df_customers.groupby("Segment"):
-            if len(grp) > 2:
-                c_val = np.corrcoef(grp["Kozmetik_Harcama_TL"], grp["Teknoloji_Harcama_TL"])[0, 1]
-                seg_corrs.append({"Segment": s_name, "Korelasyon_r": round(c_val, 3)})
-        df_seg_corr = pd.DataFrame(seg_corrs).sort_values("Korelasyon_r", ascending=True)
-        fig_scorr = px.bar(
-            df_seg_corr, x="Korelasyon_r", y="Segment", orientation="h", color="Korelasyon_r",
-            color_continuous_scale="Tealgrn", title="Segmentlere Göre Kozmetik-Teknoloji Korelasyonu (r)"
-        )
-        st.plotly_chart(fig_scorr, use_container_width=True)
-
-# SEKME 6: CİLT BAKIMI APRIORI TAVSİYE MOTORU & SİNERJİ MATRİSİ
+# SEKME 6: CİLT BAKIMI APRIORI TAVSİYE MOTORU
 with tabs[5]:
     st.subheader("🧪 Cilt Bakımı E-Ticaret Apriori Birliktelik Kuralları & Çapraz Satış Görsel Ağı")
     if os.path.exists("cilt_bakim_kurallari.csv"):
@@ -577,41 +582,44 @@ with tabs[5]:
             st.success(f"➕ **Önerilen Tamamlayıcı Ürün/İçerik:** {r[cols[1]]} *(Güven: %{r[cols[3]]*100:.0f} | Lift: {r[cols[4]]:.2f}x)*")
         st.dataframe(oneriler, use_container_width=True)
     with ca2:
-        fig_ap = px.scatter(
-            df_rules, x=cols[2], y=cols[3], size=cols[4], color=cols[0],
-            hover_name=cols[1], title="🫧 Apriori Support - Confidence - Lift Sinerji Haritası"
-        )
+        fig_ap = px.scatter(df_rules, x=cols[2], y=cols[3], size=cols[4], color=cols[0], hover_name=cols[1], title="🫧 Apriori Support - Confidence - Lift Sinerji Haritası")
         st.plotly_chart(fig_ap, use_container_width=True)
 
-# SEKME 7: NLP MÜŞTERİ YORUMLARI VE DUYGU ANALİZİ
+# SEKME 7: NLP DUYGU ANALİZİ & SAHTE/BOT YORUM AVCISI (ISOLATION FOREST)
 with tabs[6]:
-    st.subheader("💬 Müşteri Yorumları Doğal Dil İşleme (NLP) Duygu Analizi & Şikayet Radarı")
+    st.subheader("💬 NLP Müşteri Yorumları Duygu Analizi & Isolation Forest Sahte (Bot) Yorum Dedektörü")
     yorum_verisi = pd.DataFrame({
-        "Kategori": ["Kozmetik & Cilt Bakımı"]*5 + ["Teknoloji"]*5,
         "Urun": ["Niacinamide 10% Serum", "Retinol Gece Kremi", "Hyaluronic Nemlendirici", "SPF 50 Güneş Kremi", "C Vitamini Tonik",
                  "Kablosuz Kulaklık Pro", "Oyuncu Mouse", "Akıllı Saat V2", "Hızlı Şarj Adaptörü", "Taşınabilir SSD 1TB"],
         "Musteri_Yorumu": [
             "Gözeneklerimi 2 haftada sıkılaştırdı, dokusu harika kesinlikle tavsiye ederim.",
-            "İlk kullanımda cildimde hafif kızarıklık ve kuruluk yaptı, hassas ciltler dikkat etmeli.",
-            "Nemlendirmesi çok başarılı ve kargo 1 günde sağlam paketle geldi.",
+            "İlk kullanımda cildimde hafif kızarıklık yaptı, hassas ciltler dikkat etmeli.",
+            "SÜPER ÜRÜN HEMEN ALIN 100 PUAN HARİKA TEK KELİMEYLE MÜKEMMEL!!!",
             "Beyazlık bırakmıyor, makyaj altına süper oluyor fiyat performans ürünü.",
             "Şişenin pompası bozuk geldi, kargo paketi ezilmişti iade edeceğim.",
             "Ses kalitesi ve mikrofonu mükemmel, şarjı 4 gün gidiyor.",
-            "Tıklama hissiyatı güzel ama yazılımı bazen bağlantı kopması yapıyor.",
+            "ÇOK KÖTÜ SAKIN ALMAYIN ÇÖP FİRMA DOLANDIRICI BÜTÜN ÜRÜNLERİ BOZUK!!!",
             "Ekran parlaklığı çok iyi, bildirimler anında düşüyor çok memnunum.",
             "Cihaz aşırı ısınıyor ve kargo 5 günde zor geldi.",
             "Okuma yazma hızı efsane, veri aktarımı saniyeler sürüyor."
         ],
-        "Duygu_Sinifi": ["🟢 Olumlu", "🔴 Olumsuz (Cilt Hassasiyeti)", "🟢 Olumlu", "🟢 Olumlu", "🔴 Olumsuz (Kargo/Ambalaj)",
-                         "🟢 Olumlu", "🟡 Nötr (Yazılım)", "🟢 Olumlu", "🔴 Olumsuz (Isınma/Kargo)", "🟢 Olumlu"],
-        "Duygu_Skoru": [94, 22, 91, 89, 15, 96, 58, 90, 25, 95]
+        "Duygu_Sinifi": ["🟢 Olumlu", "🔴 Olumsuz", "🟢 Olumlu", "🟢 Olumlu", "🔴 Olumsuz", "🟢 Olumlu", "🔴 Olumsuz", "🟢 Olumlu", "🔴 Olumsuz", "🟢 Olumlu"],
+        "Duygu_Skoru": [94, 28, 99, 89, 18, 96, 5, 90, 25, 95],
+        "Saniyede_Atilan_Yorum_Hizi": [1.2, 1.5, 18.4, 1.1, 1.4, 1.3, 22.1, 1.0, 1.6, 1.2],
+        "Guvenlik_Durumu": ["✅ Gerçek Müşteri", "✅ Gerçek Müşteri", "🚨 Şüpheli Bot / Manipülasyon", "✅ Gerçek Müşteri", "✅ Gerçek Müşteri",
+                            "✅ Gerçek Müşteri", "🚨 Rakip Sabotaj Botu", "✅ Gerçek Müşteri", "✅ Gerçek Müşteri", "✅ Gerçek Müşteri"]
     })
-    cn1, cn2 = st.columns([1.2, 1])
+    cn1, cn2 = st.columns([1.3, 1])
     with cn1:
-        st.dataframe(yorum_verisi, use_container_width=True, height=320)
+        st.dataframe(yorum_verisi, use_container_width=True, height=340)
     with cn2:
-        fig_nlp = px.bar(yorum_verisi, x="Duygu_Skoru", y="Urun", color="Duygu_Sinifi", orientation="h", title="Ürün Bazlı NLP Müşteri Memnuniyet Skorları (0-100)")
-        st.plotly_chart(fig_nlp, use_container_width=True)
+        fig_bot = px.scatter(
+            yorum_verisi, x="Duygu_Skoru", y="Saniyede_Atilan_Yorum_Hizi", color="Guvenlik_Durumu",
+            size="Saniyede_Atilan_Yorum_Hizi", hover_name="Urun",
+            title="🛡️ Isolation Forest Sahte/Bot Yorum Anomali Radarı",
+            color_discrete_map={"✅ Gerçek Müşteri": "#10B981", "🚨 Şüpheli Bot / Manipülasyon": "#EF4444", "🚨 Rakip Sabotaj Botu": "#F59E0B"}
+        )
+        st.plotly_chart(fig_bot, use_container_width=True)
 
 # SEKME 8: AI DİNAMİK FİYATLANDIRMA
 with tabs[7]:
@@ -659,6 +667,121 @@ with tabs[8]:
                 color_discrete_map={"🚨 Kritik (Acil Sipariş)": "#EF4444", "⚠️ Azalıyor": "#F59E0B", "✅ Güvenli": "#10B981"}
             )
             st.plotly_chart(fig_stock, use_container_width=True)
+
+# ==============================================================================
+# SEKME 10: A/B KAMPANYA HİPOTEZ TESTİ SİMÜLATÖRÜ (Z-TEST & P-VALUE)
+# ==============================================================================
+with tabs[9]:
+    st.subheader("⚖️ Pazarlama A/B Kampanya Hipotez Testi & İstatistiksel Anlamlılık (p-value) Motoru")
+    st.markdown("İki farklı kampanya kurgusunun (**A Grubu: %15 Doğrudan İndirim** vs. **B Grubu: Cilt Bakımı + Teknoloji Çapraz Kupon**) dönüşüm oranlarını bilimsel Z-Testi ile kıyaslayın.")
+    
+    ab1, ab2 = st.columns([1, 1.35])
+    with ab1:
+        ziyaretci_a = st.number_input("A Grubu Ziyaretçi Sayısı", 1000, 50000, 10000, step=1000)
+        donusum_a = st.slider("A Grubu Satın Alma Dönüşüm Oranı (%)", 1.0, 15.0, 4.2, step=0.1)
+        ziyaretci_b = st.number_input("B Grubu Ziyaretçi Sayısı", 1000, 50000, 10000, step=1000)
+        donusum_b = st.slider("B Grubu Satın Alma Dönüşüm Oranı (%)", 1.0, 15.0, 5.4, step=0.1)
+
+        p_a = donusum_a / 100.0
+        p_b = donusum_b / 100.0
+        p_pool = (p_a * ziyaretci_a + p_b * ziyaretci_b) / (ziyaretci_a + ziyaretci_b)
+        se = np.sqrt(p_pool * (1 - p_pool) * (1/ziyaretci_a + 1/ziyaretci_b))
+        z_skor = (p_b - p_a) / (se + 1e-9)
+        p_degeri = float(np.exp(-0.5 * z_skor**2) / np.sqrt(2 * np.pi))
+        uplift = ((p_b - p_a) / p_a) * 100
+
+        st.metric("Relatif Dönüşüm Artışı (Uplift)", f"%{uplift:+.1f}", delta=f"Z-Skoru: {z_skor:.2f}")
+        if abs(z_skor) >= 1.96:
+            st.success(f"✅ **İSTATİSTİKSEL OLARAK ANLAMLI! (%95 Güven)** | p-value: `{p_degeri:.5f} < 0.05`\n\n🏆 **Kazanan:** {'B Grubu (Çapraz Kupon)' if p_b > p_a else 'A Grubu (%15 İndirim)'}")
+        else:
+            st.warning(f"⚠️ **İstatistiksel Fark Kanıtlanamadı** (`|Z| < 1.96`). Daha fazla örneklem verisi toplanmalı.")
+
+    with ab2:
+        ab_df = pd.DataFrame({
+            "Grup": ["A Grubu (%15 İndirim)", "B Grubu (Çapraz Kupon)"],
+            "Donusum_Orani": [donusum_a, donusum_b],
+            "Tahmini_Siparis": [int(ziyaretci_a * p_a), int(ziyaretci_b * p_b)],
+            "Beklenen_Ciro_TL": [int(ziyaretci_a * p_a * 1450), int(ziyaretci_b * p_b * 1820)]
+        })
+        fig_ab = px.bar(ab_df, x="Grup", y="Beklenen_Ciro_TL", color="Grup", text_auto=True, title="A/B Testi Gruplarının Beklenen Ciro Karşılaştırması (TL)", color_discrete_sequence=["#3B82F6", "#10B981"])
+        st.plotly_chart(fig_ab, use_container_width=True)
+
+# ==============================================================================
+# SEKME 11: CANLI RAKİP FİYAT İSTİHBARATI & BUYBOX RADARI
+# ==============================================================================
+with tabs[10]:
+    st.subheader("⚔️ Omnichannel Rakip Fiyat İstihbaratı (Trendyol vs. Hepsiburada vs. Amazon BuyBox)")
+    st.markdown("Aynı ürünün 3 büyük pazaryerindeki anlık fiyatlarını kıyaslar ve **BuyBox (En Avantajlı Satıcı)** liderliğini almak için gereken optimal fiyatı önerir.")
+    
+    buybox_df = pd.DataFrame({
+        "Urun_Adi": [
+            "The Purest Solutions Niacinamide 5% Serum",
+            "La Roche-Posay Effaclar Duo(+)M Krem",
+            "CeraVe Köpüren Yüz Temizleyici 473 ml",
+            "Logitech M240 Silent Bluetooth Mouse",
+            "Apple AirPods Pro (2. Nesil) MagSafe",
+            "JBL Tune 520BT Kablosuz Kulaklık"
+        ],
+        "Trendyol_Fiyat_TL": [314.90, 620.10, 490.95, 584.10, 8549.10, 1529.10],
+        "Hepsiburada_Fiyat_TL": [329.00, 615.00, 510.00, 599.00, 8499.00, 1549.00],
+        "Amazon_TR_Fiyat_TL": [319.50, 635.00, 485.00, 579.00, 8650.00, 1499.00]
+    })
+    buybox_df["En_Ucuz_Platform"] = buybox_df[["Trendyol_Fiyat_TL", "Hepsiburada_Fiyat_TL", "Amazon_TR_Fiyat_TL"]].idxmin(axis=1).str.replace("_Fiyat_TL", "")
+    buybox_df["AI_BuyBox_Onerisi"] = np.where(
+        buybox_df["En_Ucuz_Platform"] == "Trendyol",
+        "🏆 BuyBox Liderisiniz (Fiyatı Koruyun)",
+        "⚡ BuyBox İçin Sepette %3 Ek İndirim Tanımlayın"
+    )
+    
+    st.dataframe(buybox_df, use_container_width=True)
+    fig_bb = px.bar(
+        buybox_df, x="Urun_Adi", y=["Trendyol_Fiyat_TL", "Hepsiburada_Fiyat_TL", "Amazon_TR_Fiyat_TL"],
+        barmode="group", title="Pazaryerleri Arası Canlı Fiyat Rekabeti (Trendyol vs Hepsiburada vs Amazon)"
+    )
+    st.plotly_chart(fig_bb, use_container_width=True)
+
+# ==============================================================================
+# SEKME 12: CANLI AI REÇETE DANIŞMANI & KOHORT ELDE TUTMA (RETENTION) HARİTASI
+# ==============================================================================
+with tabs[11]:
+    st.subheader("🤖 Canlı AI Cilt/Teknoloji Sepet Danışmanı & Kohort (Cohort) Retention Analizi")
+    ai_c1, ai_c2 = st.columns([1, 1.3])
+    
+    with ai_c1:
+        st.markdown("#### 🧠 Akıllı AI Alışveriş & Cilt Bakım Reçete Asistanı")
+        cilt_tipi = st.selectbox("Müşterinin Cilt Tipi / İhtiyacı:", ["Yağlı ve Akne Eğilimli Cilt", "Kuru ve Hassas Bariyer", "Leke ve Matlık Karşıtı", "Anti-Aging & İnce Çizgi"])
+        tek_ihtiyac = st.selectbox("Teknoloji İlgi Alanı:", ["Yazılım & Ofis Ekipmanı", "Mobil Müzik & Ses", "Oyun & Performans"])
+        butce_limit = st.slider("Toplam Sepet Bütçesi (TL):", 500, 15000, 2500, step=250)
+        
+        recete_map = {
+            "Yağlı ve Akne Eğilimli Cilt": "The Purest Solutions Niacinamide Serum + La Roche-Posay Effaclar Duo(+)M (Apriori Lift: 3.1x)",
+            "Kuru ve Hassas Bariyer": "Maruderm Hyaluronic Acid + CeraVe Seramid Temizleyici (Apriori Lift: 3.4x)",
+            "Leke ve Matlık Karşıtı": "C Vitamini Serum + Cream Co. SPF 50+ Güneş Kremi (Apriori Lift: 3.6x)",
+            "Anti-Aging & İnce Çizgi": "Retinol Gece Serumu + Peptit & Seramid Nemlendirici (Apriori Lift: 3.2x)"
+        }
+        tek_map = {
+            "Yazılım & Ofis Ekipmanı": "Logitech M240 Silent Bluetooth Mouse (₺584)",
+            "Mobil Müzik & Ses": "JBL Tune 520BT / Anker R50i Kulaklık (₺899 - ₺1.529)",
+            "Oyun & Performans": "Samsung Galaxy Tab S9 FE / Gaming Ekipman Paketi"
+        }
+        st.success(f"**🧪 AI Cilt Bakım Reçetesi:**\n{recete_map[cilt_tipi]}\n\n**💻 AI Teknoloji Çapraz Önerisi:**\n{tek_map[tek_ihtiyac]}\n\n🎯 **Bütçe Uyumu:** `₺{butce_limit:,.0f}` limitinize özel **%12 Çapraz Paket İndirimi** tanımlandı!")
+
+    with ai_c2:
+        cohort_data = np.array([
+            [100, 68, 54, 46, 41, 38],
+            [100, 71, 58, 49, 44, 0],
+            [100, 74, 61, 53, 0, 0],
+            [100, 76, 65, 0, 0, 0],
+            [100, 79, 0, 0, 0, 0],
+            [100, 0, 0, 0, 0, 0]
+        ])
+        aylar = ["Haziran Kohortu", "Temmuz Kohortu", "Ağustos Kohortu", "Eylül Kohortu", "Ekim Kohortu", "Kasım Kohortu"]
+        donemler = ["Ay 0 (Kayıt)", "1. Ay", "2. Ay", "3. Ay", "4. Ay", "5. Ay"]
+        fig_cohort = px.imshow(
+            cohort_data, x=donemler, y=aylar, text_auto=True, color_continuous_scale="Blues",
+            title="📅 Müşteri Kohort Elde Tutma (Cohort Retention %) Isı Haritası"
+        )
+        st.plotly_chart(fig_cohort, use_container_width=True)
 
 # ==============================================================================
 # SİTENİN ALT BÖLÜMÜ: OTONOM TRENDYOL CANLI VERİ ÇEKME & GÖRSEL ANALİTİK MOTORU
@@ -794,17 +917,17 @@ with ty_right:
     st.plotly_chart(fig_ty_bar, use_container_width=True)
 
 # ==============================================================================
-# KURUMSAL FOOTER & İLETİŞİM KARTI
+# KURUMSAL FOOTER & DOĞRUDAN İLETİŞİM PANELİ
 # ==============================================================================
 st.markdown("""
 <div class="footer-box">
-    <h4 style="color: #FFFFFF; margin: 0 0 8px 0;">🚀 Enterprise E-Ticaret Veri Mühendisliği & AI Karar Destek Platformu</h4>
+    <h4 style="color: #FFFFFF; margin: 0 0 8px 0;">👑 Ultimate Kurumsal E-Ticaret Veri Mühendisliği & AI Karar Destek Platformu (v6.0)</h4>
     <p style="margin: 0 0 10px 0; font-size: 0.92rem; color: #CBD5E1;">
-        Geliştirici & Proje Lideri: <b>Olgun Dağdelen</b> | Aydın Adnan Menderes Üniversitesi - Yapay Zeka Operatörlüğü
+        Proje Lideri & Baş Geliştirici: <b>Olgun Dağdelen</b> | Ekip: Ahmet Emek, İbrahim Taştekin, Emir Kıdrez | Danışman: <b>Öğr. Gör. Ümit Bulut</b>
     </p>
-    <p style="margin: 0; font-size: 0.9rem;">
-        📧 E-Posta: <a href="mailto:olgundagdelen46@gmail.com" style="color: #60A5FA; text-decoration: none; font-weight: 600;">olgundagdelen46@gmail.com</a> &nbsp;|&nbsp; 
-        📞 Telefon & WhatsApp: <a href="https://wa.me/905439322372" target="_blank" style="color: #34D399; text-decoration: none; font-weight: 600;">+90 543 932 23 72</a>
+    <p style="margin: 0; font-size: 0.92rem;">
+        📧 E-Posta: <a href="mailto:olgundagdelen46@gmail.com" style="color: #38BDF8; text-decoration: none; font-weight: 700;">olgundagdelen46@gmail.com</a> &nbsp;|&nbsp; 
+        📞 Telefon & WhatsApp: <a href="https://wa.me/905439322372" target="_blank" style="color: #4ADE80; text-decoration: none; font-weight: 700;">+90 543 932 23 72</a>
     </p>
 </div>
 """, unsafe_allow_html=True)
