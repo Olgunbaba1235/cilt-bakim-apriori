@@ -297,7 +297,7 @@ with tabs[1]:
     with eda2:
         fig_violin = px.violin(
             df_customers, x="Sehir", y="Toplam_Harcama_TL", color="Baskin_Kategori",
-            box=True, points="outliers", title="🎻 Şehirlere ve Kategorilere Göre Harcama Yoğunluğu (Violin & Box Plot)",
+            box=True, title="🎻 Şehirlere ve Kategorilere Göre Harcama Yoğunluğu (Violin & Box Plot)",
             color_discrete_sequence=["#EC4899", "#2563EB"]
         )
         st.plotly_chart(fig_violin, use_container_width=True)
@@ -305,7 +305,7 @@ with tabs[1]:
     eda3, eda4 = st.columns(2)
     with eda3:
         fig_tree_city = px.treemap(
-            df_customers, path=[px.Constant("Türkiye Geneli"), "Sehir", "Baskin_Kategori", "Segment"],
+            df_customers, path=["Sehir", "Baskin_Kategori", "Segment"],
             values="Toplam_Harcama_TL", color="Gelecek_Kampanya_Tahmini_TL", color_continuous_scale="Viridis",
             title="🗺️ Türkiye Şehir, Kategori ve Segment Hiyerarşik Ciro Haritası (Treemap)"
         )
@@ -313,7 +313,7 @@ with tabs[1]:
     with eda4:
         fig_joint = px.density_heatmap(
             df_customers, x="Gunluk_Aktif_Sure_Dk", y="Alisveris_Sikligi",
-            marginal_x="histogram", marginal_y="histogram", color_continuous_scale="Magma",
+            color_continuous_scale="Magma",
             title="⚡ Sitede Kalma Süresi x Alışveriş Sıklığı Yoğunluk Haritası (2D Density)"
         )
         st.plotly_chart(fig_joint, use_container_width=True)
@@ -331,7 +331,6 @@ with tabs[2]:
         )
         st.plotly_chart(fig_3d, use_container_width=True)
     with cs2:
-        # Radar (Spider) Grafiği
         radar_cols = ["Gunluk_Aktif_Sure_Dk", "Kullanim_Suresi_Ay", "Alisveris_Sikligi", "Toplam_Harcama_TL", "Gelecek_Kampanya_Tahmini_TL"]
         seg_means = df_customers.groupby("Segment")[radar_cols].mean()
         scaler_mm = MinMaxScaler(feature_range=(20, 100))
@@ -340,8 +339,8 @@ with tabs[2]:
         fig_radar = go.Figure()
         for seg_name in seg_norm.index:
             fig_radar.add_trace(go.Scatterpolar(
-                r=seg_norm.loc[seg_name].values,
-                theta=seg_norm.columns,
+                r=seg_norm.loc[seg_name].values.tolist(),
+                theta=seg_norm.columns.tolist(),
                 fill="toself",
                 name=seg_name
             ))
@@ -598,7 +597,7 @@ tm2.metric("Ort. Sepette İndirimli Fiyat", f"₺{df_trendyol['Sepette_Indirimli
 tm3.metric("Toplam İncelenen Yorum", f"{df_trendyol['Degerlendirme_Sayisi'].sum():,} Yorum")
 tm4.metric("Toplam Favorilenme Hacmi", f"{df_trendyol['Favori_Sayisi'].sum():,} Favori", delta="Canlı Sosyal Kanıt")
 
-# Trendyol Görsel Analitik Grafikleri (3 Büyük Görsel)
+# Trendyol Görsel Analitik Grafikleri
 tg1, tg2 = st.columns(2)
 with tg1:
     fig_ty_bubble = px.scatter(
@@ -612,7 +611,7 @@ with tg1:
 
 with tg2:
     fig_ty_tree = px.treemap(
-        df_trendyol, path=[px.Constant("Trendyol Canlı Veri"), "Kategori", "Marka"],
+        df_trendyol, path=["Kategori", "Marka"],
         values="Favori_Sayisi", color="Trendyol_Puani", color_continuous_scale="Oranges",
         title="🟧 Trendyol Kategori ve Marka Popülerlik Ağaç Haritası (Treemap - Favori Hacmi)"
     )
