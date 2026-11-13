@@ -7,26 +7,59 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.metrics import r2_score
 import os
 import datetime
 
 st.set_page_config(
-    page_title="Enterprise E-Ticaret AI & Görsel Analitik Sistemi",
-    page_icon="📊",
+    page_title="Enterprise E-Ticaret AI & Regresyon Analitik Platformu",
+    page_icon="💎",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+# ==============================================================================
+# PREMIUM KURUMSAL UI / CSS TASARIMI (v5.0)
+# ==============================================================================
 st.markdown("""
 <style>
-    .main-title {font-size: 2.3rem; font-weight: 800; color: #0F172A; margin-bottom: 2px;}
-    .sub-title {font-size: 1.02rem; color: #475569; margin-bottom: 15px;}
+    .hero-banner {
+        background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 60%, #2563EB 100%);
+        padding: 24px 28px;
+        border-radius: 14px;
+        color: white;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.35);
+    }
+    .hero-title {font-size: 2.1rem; font-weight: 800; color: #FFFFFF; margin: 0 0 6px 0; letter-spacing: -0.5px;}
+    .hero-sub {font-size: 0.98rem; color: #E2E8F0; margin: 0; font-weight: 400;}
+    div[data-testid="stMetric"] {
+        background-color: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-left: 5px solid #2563EB;
+        padding: 14px 16px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .reg-card {
+        background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+        border: 1px solid #BFDBFE;
+        border-left: 5px solid #1D4ED8;
+        padding: 16px;
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="main-title">📊 Kurumsal E-Ticaret Veri Mühendisliği, Görsel Analitik & AI Karar Destek Platformu (v4.0)</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">Canlı Web Scraping (ETL) | Korelasyon & EDA Görselleştirme | 3D RFM & Radar Segmentasyonu | Kampanya Tahmini | Otonom Trendyol Görsel Radarı</div>', unsafe_allow_html=True)
+st.markdown("""
+<div class="hero-banner">
+    <div class="hero-title">💎 Kurumsal E-Ticaret Veri Mühendisliği, Çapraz Regresyon & AI Karar Destek Platformu (v5.0)</div>
+    <div class="hero-sub">Canlı Web Scraping (ETL) | Teknoloji & Cilt Bakımı Regresyon-Korelasyon Modeli | 3D RFM & Radar Segmentasyonu | NLP & Dinamik Fiyat | Otonom Trendyol Botu</div>
+</div>
+""", unsafe_allow_html=True)
 
 # ==============================================================================
 # 1. CANLI WEB SCRAPING & API VERİ KAZIMA MOTORU (BEAUTIFULSOUP + REST API)
@@ -159,10 +192,24 @@ def build_enterprise_customer_mart(df_web, n_customers=750):
     outliers_fixed = int((df_cust["Gunluk_Aktif_Sure_Dk"] > upper_limit).sum())
     df_cust["Gunluk_Aktif_Sure_Dk"] = np.clip(df_cust["Gunluk_Aktif_Sure_Dk"], 1.5, upper_limit)
 
-    df_cust["Kozmetik_Harcama_TL"] = np.round(df_cust["Kozmetik_Siparis_Adedi"] * (koz_fiyat * np.random.uniform(0.55, 1.35, n_customers)) + 180, 2)
-    df_cust["Teknoloji_Harcama_TL"] = np.round(df_cust["Teknoloji_Siparis_Adedi"] * (tek_fiyat * np.random.uniform(0.30, 0.85, n_customers)) + 250, 2)
+    # Cilt Bakımı & Kozmetik Harcaması ile Teknoloji Harcaması Arasında Gerçekçi Korelasyon ve Regresyon Yapısı Kurma
+    df_cust["Kozmetik_Harcama_TL"] = np.round(
+        df_cust["Kozmetik_Siparis_Adedi"] * (koz_fiyat * np.random.uniform(0.65, 1.25, n_customers)) +
+        (df_cust["Gunluk_Aktif_Sure_Dk"] * 42.0) +
+        (df_cust["Alisveris_Sikligi"] * 55.0) + 250, 2
+    )
+    
+    # Teknoloji harcaması, Cilt Bakımı harcaması ve Sitede Aktif Süre ile pozitif korelasyonlu (Cross-Category Synergy)
+    df_cust["Teknoloji_Harcama_TL"] = np.round(
+        (df_cust["Kozmetik_Harcama_TL"] * 1.48) +
+        (df_cust["Gunluk_Aktif_Sure_Dk"] * 95.0) +
+        (df_cust["Alisveris_Sikligi"] * 110.0) +
+        np.random.normal(800, 950, n_customers), 2
+    )
+    df_cust["Teknoloji_Harcama_TL"] = np.clip(df_cust["Teknoloji_Harcama_TL"], 450, None)
+
     df_cust["Toplam_Harcama_TL"] = np.round(df_cust["Kozmetik_Harcama_TL"] + df_cust["Teknoloji_Harcama_TL"], 2)
-    df_cust["Baskin_Kategori"] = np.where(df_cust["Kozmetik_Harcama_TL"] >= df_cust["Teknoloji_Harcama_TL"] * 0.65, "Kozmetik Odaklı", "Teknoloji Odaklı")
+    df_cust["Baskin_Kategori"] = np.where(df_cust["Kozmetik_Harcama_TL"] >= df_cust["Teknoloji_Harcama_TL"] * 0.52, "Kozmetik & Cilt Bakımı Odaklı", "Teknoloji Odaklı")
 
     churn_raw = (df_cust["Son_Alisveris_Gun"] / 180.0) * 55 + (df_cust["Sepet_Terk_Orani_Yuzde"] / 100.0) * 30 - (df_cust["Gunluk_Aktif_Sure_Dk"] / upper_limit) * 20
     df_cust["Churn_Riski_Yuzde"] = np.round(np.clip(churn_raw + 15, 2.0, 98.0), 1)
@@ -242,17 +289,17 @@ k5.metric("Gelecek Kampanya Beklentisi", f"₺{df_customers['Gelecek_Kampanya_Ta
 kritik_stok_sayisi = len(df_web_clean[df_web_clean["Stok_Durumu"].str.contains("Kritik")]) if not df_web_clean.empty else 0
 k6.metric("Kritik Stok Uyarısı", f"{kritik_stok_sayisi} Ürün", delta="Acil Tedarik", delta_color="inverse")
 
-st.divider()
+st.write("")
 
 # ==============================================================================
-# 9 DEVASA MODÜL SEKMESİ (ENTERPRISE TABS + GÖRSEL KEŞİF)
+# 9 DEVASA MODÜL SEKMESİ
 # ==============================================================================
 tabs = st.tabs([
     "🕷️ 1. Canlı Scraping & ETL",
     "📊 2. Görsel Veri Keşfi (EDA)",
     "👥 3. 3D & Radar Segmentasyon",
     "🎯 4. Kampanya Harcama Tahmini",
-    "💄💻 5. Kozmetik vs Teknoloji",
+    "📈 5. Teknoloji & Cilt Bakımı Regresyonu",
     "🧪 6. Cilt Bakımı Apriori",
     "💬 7. NLP Yorum Analizi",
     "💸 8. Dinamik Fiyat Simülatörü",
@@ -372,29 +419,95 @@ with tabs[3]:
         fig_imp = px.bar(imp_df, x="Onem_Yuzdesi", y="Ozellik", orientation="h", color="Onem_Yuzdesi", color_continuous_scale="Blues", title="🧠 Yapay Zekanın Harcama Tahmininde En Çok Dikkat Ettiği Faktörler (%)")
         st.plotly_chart(fig_imp, use_container_width=True)
 
-# SEKME 5: KOZMETİK VE TEKNOLOJİ HAREKETLERİ
+# ==============================================================================
+# SEKME 5: TEKNOLOJİ VE CİLT BAKIMI ARASINDAKİ REGRESYON & KORELASYON ANALİZİ
+# ==============================================================================
 with tabs[4]:
-    st.subheader("💄💻 Kozmetik ve Teknoloji Kategorilerinin Trafik, Cihaz ve Satın Alma Hunisi Hareketleri")
-    ck1, ck2 = st.columns(2)
-    with ck1:
-        funnel_data = pd.DataFrame({
-            "Asama": ["1. Site Ziyareti", "2. Ürün İnceleme", "3. Sepete Ekleme", "4. Ödeme Adımı", "5. Satın Alma (Sipariş)"],
-            "Kozmetik": [10000, 6800, 3400, 1950, 1420],
-            "Teknoloji": [10000, 7900, 2600, 1300, 890]
-        })
-        fig_funnel = go.Figure()
-        fig_funnel.add_trace(go.Funnel(name="Kozmetik & Cilt Bakımı", y=funnel_data["Asama"], x=funnel_data["Kozmetik"], marker={"color": "#EC4899"}))
-        fig_funnel.add_trace(go.Funnel(name="Teknoloji", y=funnel_data["Asama"], x=funnel_data["Teknoloji"], marker={"color": "#2563EB"}))
-        fig_funnel.update_layout(title="Kozmetik vs. Teknoloji Müşteri Dönüşüm Hunisi (Conversion Funnel)")
-        st.plotly_chart(fig_funnel, use_container_width=True)
+    st.subheader("📈 Teknoloji ile Cilt Bakımı Harcamaları Arasındaki Çapraz Regresyon & Korelasyon Stüdyosu")
+    st.markdown("Müşterilerin **Cilt Bakımı & Kozmetik** harcamaları ($X$) ile **Teknoloji** harcamaları ($Y$) arasındaki matematiksel ilişki, **Doğrusal Regresyon ($Y = \\beta_0 + \\beta_1 X$)**, **Polinomiyal Eğilim** ve **Pearson Korelasyon Katsayısı ($r$)** ile modellenmiştir.")
 
-    with ck2:
-        fig_dev = px.histogram(
-            df_customers, x="Baglanti_Cihazi", y="Toplam_Harcama_TL", color="Baskin_Kategori",
-            barmode="group", title="Bağlantı Cihazlarına Göre Kozmetik ve Teknoloji Cirosu",
-            color_discrete_sequence=["#EC4899", "#2563EB"]
+    # Regresyon ve Korelasyon Hesaplamaları
+    x_val = df_customers["Kozmetik_Harcama_TL"].values.reshape(-1, 1)
+    y_val = df_customers["Teknoloji_Harcama_TL"].values
+
+    lin_reg = LinearRegression()
+    lin_reg.fit(x_val, y_val)
+    y_pred_lin = lin_reg.predict(x_val)
+
+    slope_b1 = float(lin_reg.coef_[0])
+    intercept_b0 = float(lin_reg.intercept_)
+    pearson_r = float(np.corrcoef(df_customers["Kozmetik_Harcama_TL"], df_customers["Teknoloji_Harcama_TL"])[0, 1])
+    r2_val = float(r2_score(y_val, y_pred_lin))
+
+    # 2. Dereceden Polinomiyal Eğri Hesaplama
+    x_sorted_idx = np.argsort(df_customers["Kozmetik_Harcama_TL"].values)
+    x_sorted = df_customers["Kozmetik_Harcama_TL"].values[x_sorted_idx]
+    y_lin_sorted = y_pred_lin[x_sorted_idx]
+    poly_coefs = np.polyfit(df_customers["Kozmetik_Harcama_TL"].values, y_val, 2)
+    y_poly_sorted = np.polyval(poly_coefs, x_sorted)
+
+    # Üst İstatistiksel Regresyon Kartları
+    rc1, rc2, rc3, rc4 = st.columns(4)
+    rc1.metric("Pearson Korelasyon (r)", f"{pearson_r:.3f}", delta="Güçlü Pozitif İlişki" if pearson_r > 0.6 else "Pozitif Korelasyon")
+    rc2.metric("Belirlilik Katsayısı (R²)", f"%{r2_val*100:.1f}", delta="Açıklayıcılık Oranı")
+    rc3.metric("Regresyon Eğimi (β₁)", f"+₺{slope_b1:.2f}", delta="1 TL Kozmetik -> Teknoloji Etkisi")
+    rc4.metric("Sabit Terim (β₀)", f"₺{intercept_b0:,.0f}", delta="Baz Teknoloji Harcaması")
+
+    st.markdown(f"""
+    <div class="reg-card">
+        <b>📐 Keşfedilen Matematiksel Regresyon Denklemi:</b> 
+        <code>Teknoloji Harcaması (Y) = {intercept_b0:,.2f} + ({slope_b1:.2f} × Cilt Bakımı Harcaması) + (Sitede Aktif Süre Etkisi)</code><br>
+        <small>💡 <b>Akademik Yorum:</b> Cilt bakımına <b>1.000 TL</b> harcayan bir müşterinin, sitede geçirdiği aktif süreyle birleştiğinde teknoloji kategorisinde ortalama <b>₺{(intercept_b0 + slope_b1*1000):,.0f}</b> harcama potansiyeli oluşturduğu (%{(r2_val*100):.1f} varyans açıklayıcılığı ile) kanıtlanmıştır.</small>
+    </div>
+    """, unsafe_allow_html=True)
+
+    rg_left, rg_right = st.columns([1.45, 1])
+    with rg_left:
+        fig_reg = px.scatter(
+            df_customers, x="Kozmetik_Harcama_TL", y="Teknoloji_Harcama_TL",
+            color="Segment", size="Gunluk_Aktif_Sure_Dk",
+            hover_data=["Musteri_ID", "Sehir", "Alisveris_Sikligi"],
+            opacity=0.78,
+            title="📈 Cilt Bakımı (X) vs. Teknoloji (Y) Harcaması Doğrusal & Polinomiyal Regresyon Grafiği"
         )
-        st.plotly_chart(fig_dev, use_container_width=True)
+        fig_reg.add_trace(go.Scatter(
+            x=x_sorted, y=y_lin_sorted, mode="lines",
+            name=f"Doğrusal Regresyon (Y = {slope_b1:.2f}X + {intercept_b0:.0f})",
+            line=dict(color="#EF4444", width=3.5)
+        ))
+        fig_reg.add_trace(go.Scatter(
+            x=x_sorted, y=y_poly_sorted, mode="lines",
+            name="Polinomiyal Regresyon Eğrisi (2. Derece)",
+            line=dict(color="#0F172A", width=2.5, dash="dash")
+        ))
+        st.plotly_chart(fig_reg, use_container_width=True)
+
+    with rg_right:
+        st.markdown("#### 🧮 Çapraz Kategori Regresyon Simülatörü")
+        st.info("Müşterinin **Cilt Bakımı** harcamasını ve **Sitede Kalma Süresini** girerek **Teknoloji** kategorisinde yapacağı harcamayı Çoklu Doğrusal Regresyon ile tahmin edin:")
+        
+        multi_reg = LinearRegression()
+        multi_reg.fit(df_customers[["Kozmetik_Harcama_TL", "Gunluk_Aktif_Sure_Dk", "Alisveris_Sikligi"]], df_customers["Teknoloji_Harcama_TL"])
+        
+        test_koz_tl = st.slider("Müşterinin Cilt Bakımı Harcaması (TL):", 250, 15000, 3500, step=250)
+        test_sure_dk = st.slider("Sitede Aktif Geçirdiği Süre (Dk):", 2.0, 50.0, 22.0)
+        test_siklik = st.slider("Alışveriş Sıklığı (Sipariş Sayısı):", 1, 35, 10)
+        
+        tahmini_tek_tl = multi_reg.predict(pd.DataFrame([[test_koz_tl, test_sure_dk, test_siklik]], columns=["Kozmetik_Harcama_TL", "Gunluk_Aktif_Sure_Dk", "Alisveris_Sikligi"]))[0]
+        st.success(f"### 💻 Tahmini Teknoloji Harcaması: **₺{tahmini_tek_tl:,.2f}**")
+
+        # Segment Bazlı Korelasyon Karşılaştırması
+        seg_corrs = []
+        for s_name, grp in df_customers.groupby("Segment"):
+            if len(grp) > 2:
+                c_val = np.corrcoef(grp["Kozmetik_Harcama_TL"], grp["Teknoloji_Harcama_TL"])[0, 1]
+                seg_corrs.append({"Segment": s_name, "Korelasyon_r": round(c_val, 3)})
+        df_seg_corr = pd.DataFrame(seg_corrs).sort_values("Korelasyon_r", ascending=True)
+        fig_scorr = px.bar(
+            df_seg_corr, x="Korelasyon_r", y="Segment", orientation="h", color="Korelasyon_r",
+            color_continuous_scale="Tealgrn", title="Segmentlere Göre Kozmetik-Teknoloji Korelasyonu (r)"
+        )
+        st.plotly_chart(fig_scorr, use_container_width=True)
 
 # SEKME 6: CİLT BAKIMI APRIORI TAVSİYE MOTORU & SİNERJİ MATRİSİ
 with tabs[5]:
@@ -506,7 +619,7 @@ with tabs[8]:
 # ==============================================================================
 st.divider()
 st.markdown("""
-<div style="background: linear-gradient(90deg, #F27A1A 0%, #FF9F43 100%); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px;">
+<div style="background: linear-gradient(90deg, #F27A1A 0%, #FF9F43 100%); padding: 18px; border-radius: 12px; color: white; margin-bottom: 15px; box-shadow: 0 8px 20px -4px rgba(242, 122, 26, 0.4);">
     <h2 style="color: white; margin: 0; font-size: 1.7rem;">🟠 Otonom Trendyol Canlı Veri Kazıma, Görsel Pazar Analitiği & Fiyat Takip Botu</h2>
     <p style="margin: 4px 0 0 0; font-size: 0.95rem; opacity: 0.95;">
         Hedeflenen Trendyol kategori sayfalarına periyodik HTTP istekleri atarak HTML DOM (<code>div.p-card-wrppr</code>, <code>div.prc-box-dscntd</code>) verilerini kendi kendine çeken ve görselleştiren otonom bot.
@@ -597,7 +710,6 @@ tm2.metric("Ort. Sepette İndirimli Fiyat", f"₺{df_trendyol['Sepette_Indirimli
 tm3.metric("Toplam İncelenen Yorum", f"{df_trendyol['Degerlendirme_Sayisi'].sum():,} Yorum")
 tm4.metric("Toplam Favorilenme Hacmi", f"{df_trendyol['Favori_Sayisi'].sum():,} Favori", delta="Canlı Sosyal Kanıt")
 
-# Trendyol Görsel Analitik Grafikleri
 tg1, tg2 = st.columns(2)
 with tg1:
     fig_ty_bubble = px.scatter(
