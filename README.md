@@ -1,25 +1,56 @@
-# 🧪 Cilt Bakımı E-Ticaret Tavsiye Motoru (Skincare AI Recommender)
+# ⚡ NEXUS AI: Enterprise E-Commerce Intelligence & Decision Suite (v7.0)
 
-Bu proje, e-ticaret kozmetik ve cilt bakımı ürünlerinin içerik (ingredient) verilerini **Veri Madenciliği (Apriori Algoritması)** ile analiz ederek, birlikte en sık kullanılan ve birbirini tamamlayan bileşenleri tespit eden interaktif bir tavsiye otomasyonudur.
+<div align="center">
 
-## 🌐 Canlı Web Uygulaması (Live Demo)
-Projeyi tarayıcı üzerinden 7/24 canlı olarak test etmek için aşağıdaki bağlantıya tıklayabilirsiniz:
-👉 **[Canlı Uygulamayı Açmak İçin Tıklayın](https://cilt-bakim-apriori-fecuugr3ztb8ahcl8twnz4.streamlit.app/)**
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Cloud-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Machine%2520Learning-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![Plotly](https://img.shields.io/badge/Plotly-Interactive%2520Analytics-3F4F75?style=for-the-badge&logo=plotly&logoColor=white)](https://plotly.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+</div>
 
 ---
 
-## 🎯 Projenin Amacı ve Çalışma Mantığı
-E-ticaret platformlarında müşterilere doğru ürün ve içerik kombinasyonlarını önermek (Cross-Selling) amacıyla geliştirilmiştir:
-1. **Veri Ön İşleme:** Kozmetik ürünlerin kimyasal içerik listeleri temizlenmiş ve Apriori modeline uygun sepet/işlem (transaction) matrisine dönüştürülmüştür.
-2. **Birliktelik Kuralları (Association Rules):** `mlxtend` kütüphanesi ve **Apriori** algoritması kullanılarak içerikler arasındaki **Destek (Support)**, **Güven (Confidence)** ve **İlgi/Bağlılık (Lift)** metrikleri hesaplanmıştır.
-3. **Web Otomasyonu:** Çıkarılan kurallar (`cilt_bakim_kurallari.csv`), **Streamlit** tabanlı dinamik bir arayüze entegre edilerek son kullanıcının seçtiği içeriğe göre anlık tavsiye üreten bir motora dönüştürülmüştür.
+## 💎 Proje Hakkında (About)
+**NEXUS AI**, e-ticaret operasyonlarını uçtan uca optimize etmek amacıyla geliştirilmiş, yapay zeka destekli **Kurumsal Karar Destek ve Veri Mühendisliği Platformudur**. Statik veri setleri yerine dış kaynaklardan ve **Trendyol** alt yapısından otonom veri çeken, gelişmiş veri ön eleme (ETL) adımlarından geçiren ve çok katmanlı makine öğrenmesi modelleri koşturan hibrit bir ekosistemdir.
 
-## 🛠️ Kullanılan Teknolojiler ve Kütüphaneler
-* **Dil:** Python 3
-* **Veri Analizi ve Modelleme:** Pandas, NumPy, mlxtend (Apriori & Association Rules)
-* **Web Arayüzü ve Dağıtım (Deployment):** Streamlit, Streamlit Community Cloud
+---
 
-## 📁 Depo İçeriği
-* `app.py`: Streamlit web arayüzü ve tavsiye motoru kaynak kodu.
-* `cilt_bakim_kurallari.csv`: Apriori modeli sonucunda üretilen birliktelik kuralları veri seti.
-* `requirements.txt`: Bulut sunucu kurulumu için gerekli kütüphane bağımlılıkları.
+## 🏗️ 12 Devasa Kurumsal Modül & Özellik Seti
+
+1. **🕷️ Canlı Web Scraping & ETL Hattı:** Python `requests` ve `BeautifulSoup` ile e-ticaret sunucularından canlı SKU'ları çeker; medyan ataması (`Imputation`) ve **IQR (Çeyrekler Açıklığı)** yöntemiyle aykırı değerleri (`outliers`) temizler.
+2. **📊 Gelişmiş Görsel Veri Keşfi (EDA):** Pearson Korelasyon Isı Haritası (`Heatmap`), Şehir Bazlı Kemancı Grafikleri (`Violin Plot`) ve Türkiye Hiyerarşik Ciro Haritaları (`Treemap`).
+3. **👥 3 Boyutlu RFM & Radar Segmentasyonu:** Müşterileri site içi aktif süre, sıklık ve harcama metriklerine göre `K-Means` ile kümeleyip 3B uzayda ve 5 boyutlu Radar (Spider) grafiğinde analiz eder.
+4. **🎯 Kampanya Ciro Tahmini:** `Random Forest Regressor` modeli ile müşterilerin gelecek kampanyalarda bırakacağı potansiyel ciroyu (TL) tahmin eden interaktif simülatör.
+5. **📈 Teknoloji & Cilt Bakımı Çapraz Regresyonu:** İki kategori arasındaki doğrusal/polinomiyal regresyon denklemlerini ($Y = \beta_0 + \beta_1 X$), Pearson korelasyonunu ($r$) ve $R^2$ açıklayıcılık oranını matematiksel olarak modeller.
+6. **🧪 Apriori Tavsiye Motoru:** Cilt bakımı bileşenleri (*Niacinamide, Retinol, Hyaluronic Acid vb.*) arasındaki kimyasal ve ticari sinerjiyi **Support, Confidence ve Lift** metrikleriyle çözer.
+7. **💬 NLP Duygu Analizi & Sahte Bot Avcısı:** Müşteri yorumlarını doğal dil işleme ile tarar; `Isolation Forest` denetimsiz anomali tespitiyle şüpheli bot/manipülasyon saldırılarını saptar.
+8. **💸 AI Dinamik Fiyatlandırma:** Fiyat elastikiyeti formülüyle indirim/zam oranlarının net kâra ve satış adetlerine etkisini hesaplayıp maksimum kâr noktasını bulur.
+9. **📦 Akıllı Stok & Tedarik Radarı:** Ürünlerin günlük erime hızına (`Burn Rate`) göre kaç gün sonra tükeneceğini hesaplayıp kritik stok alarmları üretir.
+10. **⚖️ A/B Kampanya Hipotez Testi:** Pazarlama kurgularının dönüşüm oranlarını Z-Testi ve p-value istatistiksel anlamlılık motoruyla test eder.
+11. **⚔️ BuyBox Rakip Fiyat İstihbaratı:** Trendyol, Hepsiburada ve Amazon Türkiye fiyatlarını kıyaslayıp en avantajlı satıcı (BuyBox) stratejisini önerir.
+12. **🤖 AI Reçete Danışmanı & Kohort (Cohort) Retention:** Kullanıcı bütçesine özel sepet reçetesi üretir ve müşteri elde tutma oranlarını üçgen ısı haritasıyla gösterir.
+13. **🟠 Otonom Trendyol Canlı Scraper:** Trendyol DOM yapısını (`div.p-card-wrppr`) tarayan ve hibrit önbellek akışıyla çalışan otonom fiyat takip daemon'u.
+
+---
+
+## 🛠️ Kullanılan Teknolojiler & Kütüphaneler
+* **Programming Language:** Python 3.10+
+* **Web Framework:** Streamlit Cloud
+* **Data Manipulation & Analysis:** Pandas, NumPy
+* **Machine Learning:** Scikit-Learn (K-Means, Random Forest, Linear Regression, Isolation Forest)
+* **Web Scraping:** Requests, BeautifulSoup4
+* **Data Visualization:** Plotly (Express & Graph Objects)
+
+---
+
+## 🚀 Yerel Çalıştırma (Quick Start)
+
+Depoyu klonlayın ve bağımlılıkları yükleyin:
+
+```bash
+git clone [https://github.com/KULLANICI_ADINIZ/cilt-bakim-apriori.git](https://github.com/KULLANICI_ADINIZ/cilt-bakim-apriori.git)
+cd cilt-bakim-apriori
+pip install -r requirements.txt
+streamlit run app.py
