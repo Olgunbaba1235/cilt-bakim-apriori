@@ -21,7 +21,7 @@ st.set_page_config(
 )
 
 # ==============================================================================
-# TEMİZ, ANLAŞILIR VE FERAH DERMOKOZMETİK TASARIM (CLEAN UI v8.0)
+# TEMİZ, ANLAŞILIR VE FERAH DERMOKOZMETİK TASARIM (CLEAN UI v8.1)
 # ==============================================================================
 st.markdown("""
 <style>
@@ -80,7 +80,7 @@ st.markdown("""
 <div class="hero-box">
     <div class="hero-title">🧴 DermaAI: Cilt Bakımı E-Ticaret Veri Analitiği & Apriori Tavsiye Platformu</div>
     <div class="hero-sub">
-        Siteden Canlı Cilt Bakım Ürünü Çekme (Web Scraping) • Veri Temizleme (ETL) • Müşteri Cilt Tipi Segmentasyonu • Sepet Regresyon Analizi • Apriori İçerik Tavsiye Motoru • Otonom Trendyol Cilt Bakımı Botu
+        Siteden Canlı Cilt Bakım Ürünü Çekme (Web Scraping) • Veri Temizleme (ETL) • Cilt Tipi & Cilt Sorunu Segmentasyonu • Sepet Regresyon Analizi • Apriori İçerik Tavsiye Motoru • Otonom Trendyol Cilt Bakımı Botu
     </div>
     <div class="contact-bar">
         <span class="badge-pill">👨‍💻 Proje Lideri: Olgun Dağdelen</span>
@@ -100,8 +100,6 @@ def fetch_skincare_catalog(custom_url=None):
     scrape_logs = []
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 
-    # A) Canlı API'den Cilt Bakımı ve Güzellik Verisi Çekme
-    api_items = []
     for endpoint in ["skin-care", "beauty"]:
         url = f"https://dummyjson.com/products/category/{endpoint}"
         try:
@@ -109,11 +107,9 @@ def fetch_skincare_catalog(custom_url=None):
             if r.status_code == 200:
                 items = r.json().get("products", [])
                 scrape_logs.append(f"✅ Canlı Veri Çekildi: {url} ({len(items)} ürün - HTTP 200)")
-                api_items.extend(items)
-        except Exception as e:
+        except Exception:
             scrape_logs.append(f"⚠️ Bağlantı bilgisi ({endpoint}): Yerel veri havuzu kullanılıyor.")
 
-    # B) Zenginleştirilmiş Dermokozmetik & Cilt Bakımı Ürün Havuzu (20 Detaylı Ürün)
     skincare_catalog = [
         {"Urun_Kodu": "SKN-101", "Marka": "The Purest Solutions", "Urun_Adi": "Gözenek Sıkılaştırıcı Niacinamide %5 + Zinc PCA Serum", "Alt_Kategori": "Yüz Serumu", "Ana_Icerik": "Niacinamide", "Hedef_Cilt_Tipi": "Yağlı ve Akneye Eğilimli", "Fiyat_TL": 349.90, "Stok": 85, "Puan": 4.7, "Yorum_Sayisi": 14820},
         {"Urun_Kodu": "SKN-102", "Marka": "La Roche-Posay", "Urun_Adi": "Effaclar Duo(+)M Akne ve Leke Karşıtı Bakım Kremi", "Alt_Kategori": "Nemlendirici & Bakım", "Ana_Icerik": "Salicylic Acid (BHA)", "Hedef_Cilt_Tipi": "Yağlı ve Akneye Eğilimli", "Fiyat_TL": 689.00, "Stok": 42, "Puan": 4.8, "Yorum_Sayisi": 9450},
@@ -138,7 +134,6 @@ def fetch_skincare_catalog(custom_url=None):
     df_products["Tahmini_Stok_Bitme_Gun"] = np.round(df_products["Stok"] / (df_products["Gunluk_Satis_Adedi"] + 0.5), 1)
     df_products["Stok_Durumu"] = np.where(df_products["Tahmini_Stok_Bitme_Gun"] < 6, "🚨 Kritik Stok (Sipariş Ver)", "✅ Stok Yeterli")
 
-    # C) BeautifulSoup HTML Analizi
     if custom_url:
         try:
             rh = requests.get(custom_url, headers=headers, timeout=6)
@@ -151,20 +146,20 @@ def fetch_skincare_catalog(custom_url=None):
     return df_products, scrape_logs
 
 # ==============================================================================
-# 2. VERİ ÖN ELEME (ETL) & CİLT BAKIMI MÜŞTERİ DAVRANIŞ VERİSİ
+# 2. VERİ ÖN ELEME (ETL) & CİLT BAKIMI MÜŞTERİ DAVRANIŞ VERİSİ (ŞEHİR YOK, CİLT SORUNU VAR!)
 # ==============================================================================
 @st.cache_data
 def generate_skincare_customers(n_customers=600):
     np.random.seed(42)
 
     cilt_tipleri = ["Yağlı ve Akneye Eğilimli", "Kuru ve Nem Kaybı Yaşayan", "Karma ve T-Bölgesi Yağlı", "Hassas ve Kızarık", "Leke ve Gözenek Sorunlu"]
-    rutin_adimlari = ["1-2 Adım (Temel: Temizleyici + Krem)", "3-4 Adım (Orta: Temizleyici + Serum + Krem + SPF)", "5+ Adım (Kore Rutini: Çift Aşamalı Temizlik + Tonik + 2 Serum + SPF)"]
-    sehirler = ["İstanbul", "İzmir", "Ankara", "Bursa", "Antalya", "Aydın", "Adana", "Eskişehir"]
+    cilt_sorunlari = ["Akne & Sivilce Kontrolü", "Siyah Nokta & Gözenek Sıkılaştırma", "Güneş Lekesi & Ton Eşitleme", "Yoğun Nem & Bariyer Onarımı", "İnce Çizgi & Anti-Aging"]
+    rutin_adimlari = ["1-2 Adım (Temel: Temizleyici + Krem)", "3-4 Adım (Orta: Temizleyici + Serum + Krem + SPF)", "5+ Adım (Kapsamlı Rutin: Tonik + Çift Serum + Krem + SPF)"]
 
     df_c = pd.DataFrame({
         "Musteri_ID": [f"DERMA-{1000+i}" for i in range(n_customers)],
-        "Sehir": np.random.choice(sehirler, size=n_customers, p=[0.30, 0.18, 0.16, 0.10, 0.08, 0.08, 0.05, 0.05]),
         "Cilt_Tipi": np.random.choice(cilt_tipleri, size=n_customers, p=[0.32, 0.24, 0.20, 0.12, 0.12]),
+        "Hedef_Cilt_Sorunu": np.random.choice(cilt_sorunlari, size=n_customers, p=[0.28, 0.24, 0.18, 0.18, 0.12]),
         "Bakim_Rutini": np.random.choice(rutin_adimlari, size=n_customers, p=[0.30, 0.48, 0.22]),
         "Gunluk_Aktif_Sure_Dk": np.round(np.random.gamma(shape=2.6, scale=7.5, size=n_customers), 1),
         "Incelenen_Urun_Sayisi": np.random.randint(2, 28, size=n_customers),
@@ -173,7 +168,6 @@ def generate_skincare_customers(n_customers=600):
         "Sepetteki_Urun_Adedi": np.random.randint(1, 8, size=n_customers)
     })
 
-    # Ön eleme göstermek için eksik ve aşırı uç (outlier) veri oluşturup temizleme
     df_c["Ham_Aktif_Sure_Dk"] = df_c["Gunluk_Aktif_Sure_Dk"].copy()
     df_c.loc[np.random.choice(n_customers, 18, replace=False), "Gunluk_Aktif_Sure_Dk"] = np.nan
     outlier_rows = np.random.choice(n_customers, 8, replace=False)
@@ -189,7 +183,6 @@ def generate_skincare_customers(n_customers=600):
     aykiri_sayisi = int((df_c["Gunluk_Aktif_Sure_Dk"] > ust_sinir).sum())
     df_c["Gunluk_Aktif_Sure_Dk"] = np.clip(df_c["Gunluk_Aktif_Sure_Dk"], 2.0, ust_sinir)
 
-    # Cilt Bakımı Sepet Harcaması (Sitede Kalma Süresi ve İncelenen Ürün Sayısı ile Güçlü Doğrusal Regresyon İlişkisi)
     df_c["Cilt_Bakim_Harcamasi_TL"] = np.round(
         320.0 +
         (df_c["Gunluk_Aktif_Sure_Dk"] * 68.5) +
@@ -199,7 +192,6 @@ def generate_skincare_customers(n_customers=600):
     )
     df_c["Cilt_Bakim_Harcamasi_TL"] = np.clip(df_c["Cilt_Bakim_Harcamasi_TL"], 250, None)
 
-    # Gelecek Kampanya Tahmini Harcama
     df_c["Gelecek_Kampanya_Tahmini_TL"] = np.round(
         df_c["Cilt_Bakim_Harcamasi_TL"] * 0.45 +
         (df_c["Gunluk_Aktif_Sure_Dk"] * 40.0) +
@@ -209,7 +201,6 @@ def generate_skincare_customers(n_customers=600):
     )
     df_c["Gelecek_Kampanya_Tahmini_TL"] = np.clip(df_c["Gelecek_Kampanya_Tahmini_TL"], 200, None)
 
-    # K-Means Müşteri Segmentasyonu (4 Net ve Anlaşılır Segment)
     feats = ["Gunluk_Aktif_Sure_Dk", "Son_Alisveris_Gun_Once", "Alisveris_Sikligi_Yillik", "Cilt_Bakim_Harcamasi_TL"]
     scaled = StandardScaler().fit_transform(df_c[feats])
     df_c["Cluster"] = KMeans(n_clusters=4, random_state=42, n_init=10).fit_predict(scaled)
@@ -227,7 +218,7 @@ def generate_skincare_customers(n_customers=600):
     return df_c, etl_info
 
 # ==============================================================================
-# YAN MENÜ (SIDEBAR) FİLTRELER VE KÜNYE
+# YAN MENÜ (SIDEBAR) CİLT BAKIMI ODAKLI FİLTRELER VE KÜNYE
 # ==============================================================================
 with st.sidebar:
     st.markdown("""
@@ -240,7 +231,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
 
-    st.subheader("🎛️ Cilt Bakımı Filtre Paneli")
+    st.subheader("🧴 Cilt Analizi Filtre Paneli")
     hedef_site = st.text_input("🕷️ Canlı Taranacak Site URL:", value="https://books.toscrape.com/")
     if st.button("🔄 Verileri Siteden Çek & Yenile", use_container_width=True):
         st.cache_data.clear()
@@ -249,12 +240,12 @@ with st.sidebar:
     df_products, scrape_logs = fetch_skincare_catalog(hedef_site)
     df_cust_all, etl_info = generate_skincare_customers()
 
-    secili_cilt = st.multiselect("Cilt Tipi Filtresi:", options=df_cust_all["Cilt_Tipi"].unique(), default=df_cust_all["Cilt_Tipi"].unique())
-    secili_sehir = st.multiselect("Şehir Filtresi:", options=df_cust_all["Sehir"].unique(), default=df_cust_all["Sehir"].unique())
+    secili_cilt = st.multiselect("1) Müşteri Cilt Tipi:", options=df_cust_all["Cilt_Tipi"].unique(), default=df_cust_all["Cilt_Tipi"].unique())
+    secili_sorun = st.multiselect("2) Hedef Cilt Sorunu:", options=df_cust_all["Hedef_Cilt_Sorunu"].unique(), default=df_cust_all["Hedef_Cilt_Sorunu"].unique())
 
     df_cust = df_cust_all[
         (df_cust_all["Cilt_Tipi"].isin(secili_cilt)) &
-        (df_cust_all["Sehir"].isin(secili_sehir))
+        (df_cust_all["Hedef_Cilt_Sorunu"].isin(secili_sorun))
     ]
 
     st.divider()
@@ -279,7 +270,7 @@ k5.metric("Gelecek Kampanya Beklentisi", f"₺{df_cust['Gelecek_Kampanya_Tahmini
 st.write("")
 
 # ==============================================================================
-# 6 NET VE ANLAŞILIR MODÜL SEKMESİ (HOCANIN İSTEDİĞİ SADE YAPI)
+# 6 NET VE ANLAŞILIR MODÜL SEKMESİ
 # ==============================================================================
 tabs = st.tabs([
     "🕷️ 1. Veri Çekme & Ön Eleme (ETL)",
@@ -290,9 +281,7 @@ tabs = st.tabs([
     "💬 6. Ürün Yorumları & Stok Durumu"
 ])
 
-# ------------------------------------------------------------------------------
 # SEKME 1: VERİ ÇEKME VE ÖN ELEME
-# ------------------------------------------------------------------------------
 with tabs[0]:
     st.subheader("🕷️ Siteden Canlı Cilt Bakım Verisi Çekme (Web Scraping) ve Veri Ön Eleme")
     st.markdown("""
@@ -321,15 +310,13 @@ with tabs[0]:
         fig_b2 = px.box(df_cust, x="Cilt_Tipi", y="Gunluk_Aktif_Sure_Dk", color="Cilt_Tipi", title="2) IQR Ön Eleme SONRASI Temizlenmiş Veri")
         st.plotly_chart(fig_b2, use_container_width=True)
 
-# ------------------------------------------------------------------------------
 # SEKME 2: CİLT TİPİ VE MÜŞTERİ SEGMENTASYONU
-# ------------------------------------------------------------------------------
 with tabs[1]:
-    st.subheader("🧴 Cilt Tiplerine ve Alışveriş Davranışlarına Göre Müşteri Segmentasyonu (K-Means)")
+    st.subheader("🧴 Cilt Tiplerine, Cilt Sorunlarına ve Alışveriş Davranışlarına Göre Segmentasyon")
     st.markdown("""
     <div class="explain-box">
         <b>💡 Bu Bölüm Ne Yapıyor?</b><br>
-        Müşterileri sitede geçirdikleri süre, alışveriş sıklığı ve cilt bakımı harcamalarına göre yapay zeka (K-Means) ile <b>4 anlaşılır gruba</b> ayırır. Ayrıca hangi cilt tipinin hangi kategoride daha çok harcama yaptığını görselleştirir.
+        Müşterileri sitede geçirdikleri süre, alışveriş sıklığı ve cilt bakımı harcamalarına göre yapay zeka (K-Means) ile <b>4 anlaşılır gruba</b> ayırır. Ayrıca hangi cilt tipinin ve cilt sorununun daha çok harcama yaptığını gösterir.
     </div>
     """, unsafe_allow_html=True)
 
@@ -338,18 +325,18 @@ with tabs[1]:
         fig_seg = px.scatter(
             df_cust, x="Gunluk_Aktif_Sure_Dk", y="Cilt_Bakim_Harcamasi_TL",
             color="Segment", size="Alisveris_Sikligi_Yillik",
-            hover_data=["Cilt_Tipi", "Bakim_Rutini", "Sehir"],
+            hover_data=["Cilt_Tipi", "Hedef_Cilt_Sorunu", "Bakim_Rutini"],
             title="Müşteri Segmentasyonu: Sitede Kalma Süresi vs. Cilt Bakımı Harcaması"
         )
         st.plotly_chart(fig_seg, use_container_width=True)
 
     with s2:
-        fig_cilt = px.bar(
-            df_cust.groupby("Cilt_Tipi", as_index=False)["Cilt_Bakim_Harcamasi_TL"].mean().sort_values("Cilt_Bakim_Harcamasi_TL", ascending=True),
-            x="Cilt_Bakim_Harcamasi_TL", y="Cilt_Tipi", orientation="h", color="Cilt_Bakim_Harcamasi_TL",
-            color_continuous_scale="Tealgrn", title="Cilt Tiplerine Göre Ortalama Sepet Harcaması (TL)"
+        fig_sorun = px.bar(
+            df_cust.groupby("Hedef_Cilt_Sorunu", as_index=False)["Cilt_Bakim_Harcamasi_TL"].mean().sort_values("Cilt_Bakim_Harcamasi_TL", ascending=True),
+            x="Cilt_Bakim_Harcamasi_TL", y="Hedef_Cilt_Sorunu", orientation="h", color="Cilt_Bakim_Harcamasi_TL",
+            color_continuous_scale="Tealgrn", title="Hedef Cilt Sorununa Göre Ortalama Sepet Harcaması (TL)"
         )
-        st.plotly_chart(fig_cilt, use_container_width=True)
+        st.plotly_chart(fig_sorun, use_container_width=True)
 
     st.markdown("#### 📋 Segmentlerin Anlaşılır Özet Tablosu")
     seg_ozet = df_cust.groupby("Segment").agg(
@@ -361,9 +348,7 @@ with tabs[1]:
     ).round(1)
     st.dataframe(seg_ozet, use_container_width=True)
 
-# ------------------------------------------------------------------------------
 # SEKME 3: CİLT BAKIMI REGRESYON VE KORELASYON ANALİZİ
-# ------------------------------------------------------------------------------
 with tabs[2]:
     st.subheader("📈 Sitede İnceleme Süresi ile Cilt Bakımı Harcaması Arasındaki Regresyon & Korelasyon")
     st.markdown("""
@@ -418,9 +403,7 @@ with tabs[2]:
         )
         st.plotly_chart(fig_heat, use_container_width=True)
 
-# ------------------------------------------------------------------------------
-# SEKME 4: APRIORI CİLT BAKIM TAVSİYE MOTORU (PROJENİN KALBİ)
-# ------------------------------------------------------------------------------
+# SEKME 4: APRIORI CİLT BAKIM TAVSİYE MOTORU
 with tabs[3]:
     st.subheader("🧪 Apriori Birliktelik Kuralları: Hangi Cilt Bakım Ürünleri Birlikte Alınıyor?")
     st.markdown("""
@@ -493,15 +476,13 @@ with tabs[3]:
 
     st.dataframe(apriori_df, use_container_width=True)
 
-# ------------------------------------------------------------------------------
 # SEKME 5: GELECEK KAMPANYA TAHMİNİ & AKILLI CİLT BAKIM REÇETESİ
-# ------------------------------------------------------------------------------
 with tabs[4]:
     st.subheader("🎯 Gelecek Kampanya Harcama Tahmini & Kişiye Özel Cilt Bakım Rutini Oluşturucu")
     st.markdown("""
     <div class="explain-box">
         <b>💡 Bu Bölüm Ne Yapıyor?</b><br>
-        Sol tarafta müşterinin cilt tipine ve bütçesine göre <b>Sabah & Akşam Cilt Bakım Rutini</b> oluşturur. Sağ tarafta ise <code>Random Forest</code> yapay zeka modeliyle müşterinin bir sonraki indirim kampanyasında kaç TL harcayacağını tahmin eder.
+        Sol tarafta müşterinin cilt tipine göre <b>Sabah & Akşam Cilt Bakım Rutini</b> oluşturur. Sağ tarafta ise <code>Random Forest</code> yapay zeka modeliyle müşterinin bir sonraki indirim kampanyasında kaç TL harcayacağını tahmin eder.
     </div>
     """, unsafe_allow_html=True)
 
@@ -545,9 +526,7 @@ with tabs[4]:
         tahmin_tl = rf_model.predict(pd.DataFrame([[t_sure, t_urun, t_siklik, t_son, t_gecmis]], columns=X_rf))[0]
         st.success(f"### 🎯 Tahmini Gelecek Kampanya Harcaması: **₺{tahmin_tl:,.2f}**")
 
-# ------------------------------------------------------------------------------
 # SEKME 6: ÜRÜN YORUMLARI DUYGU ANALİZİ VE STOK DURUMU
-# ------------------------------------------------------------------------------
 with tabs[5]:
     st.subheader("💬 Cilt Bakımı Müşteri Yorumları Analizi (NLP) & Kritik Stok Takibi")
     st.markdown("""
